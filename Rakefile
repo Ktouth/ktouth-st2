@@ -18,7 +18,7 @@ Jeweler::Tasks.new do |gem|
   gem.homepage = "http://github.com/Ktouth/ktouth-st2"
   gem.license = "MIT"
   gem.summary = %Q{KtouthBrand/StyleText2}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.description = %Q{This library analyzes a document with the format in a simple symbol and converts it into HTML and other formats.}
   gem.email = "ktouth@k-brand.gr.jp"
   gem.authors = ["Keiichiro Nishi"]
   # dependencies defined in Gemfile
