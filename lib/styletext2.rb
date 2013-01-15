@@ -3,3 +3,5 @@ module KtouthBrand
     
   end
 end
+
+require 'st2/node'
