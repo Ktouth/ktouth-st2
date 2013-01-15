@@ -1,6 +1,11 @@
 = ktouth-st2
 
-Description goes here.
+This library analyzes a document with the format in a simple symbol and converts it into HTML and other formats.
+
+For a computer, it is difficult to convert "a sentence written commonly" or "a sentence written by HTML" by mechanical processing.
+Those sentences are because they do not have a meaning in a sentence structure, or structure is too complicated.
+In this library, I treat "a document written by the format that can express minimum decoration and semantic structure" supposed the use by the diary.
+I analyze this document in semantic structure and recognize it and convert it into "a general HTML form" or "a simple HTML form for mobile terminals" or "the plain text that omitted decoration".
 
 == Contributing to ktouth-st2
  
