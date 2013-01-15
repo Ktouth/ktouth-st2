@@ -15,5 +15,5 @@ group :development do
   gem "simplecov", "~> 0.7"
   gem "guard", "~> 1.6.1", :require => false
   gem "guard-rspec", "~> 2.3.3", :require => false
-  gem "wdm", "~> 0.0.3"
+  gem "wdm", "~> 0.0.3", :require => false
 end
