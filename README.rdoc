@@ -7,6 +7,12 @@ Those sentences are because they do not have a meaning in a sentence structure, 
 In this library, I treat "a document written by the format that can express minimum decoration and semantic structure" supposed the use by the diary.
 I analyze this document in semantic structure and recognize it and convert it into "a general HTML form" or "a simple HTML form for mobile terminals" or "the plain text that omitted decoration".
 
+このライブラリは簡単な記号での書式が付いた文書を解析し、HTMLやその他の書式へ変換を行います。
+
+このライブラリは単純なシンボルでフォーマットで文書を分析して、それをHTMLと他のフォーマットに変えます。
+機械処理によって「一般的な文章」または「HTMLによって書かれた文章」を変換するのは難しいものです。それらは構文に意味を持たないか、または構造が複雑すぎるからです。
+このライブラリでは、日記での使用などが想定された「必要最小限の装飾や意味構造を表現可能な書式で書かれる文書」を扱います。この文書を意味構造で解析・認識し、「一般的なHTML形式」または「モバイル端末向けのシンプルなHTML形式」、または「装飾を省いたプレーンテキスト」などに変換します。
+
 == Contributing to KtouthBrand/StyleText2
  
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
