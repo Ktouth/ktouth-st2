@@ -4,4 +4,5 @@ module KtouthBrand
   end
 end
 
+require 'readonly_collection'
 require 'st2/node'
