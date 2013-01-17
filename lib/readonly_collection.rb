@@ -1,4 +1,3 @@
-#-- coding: UTF-8 --
 require 'forwardable'
 
 module KtouthBrand
@@ -6,7 +5,7 @@ module KtouthBrand
     include Enumerable
 
     def initialize(array)
-      raise ArgumentError, 'ソースとなる配列が指定されていません' unless array.kind_of?(Enumerable)
+      raise ArgumentError, 'Source sequence is not specified' unless array.kind_of?(Enumerable)
       @source = array
     end
 
