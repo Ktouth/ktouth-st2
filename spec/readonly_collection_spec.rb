@@ -38,4 +38,14 @@ describe "KtouthBrand::ReadOnlyCollection" do
     it { subject[0 .. -1].should == @source }    
     it { subject[1].should == @source[1] }    
   end
+
+  describe '#size' do
+    before :all do
+      @object = KtouthBrand::ReadOnlyCollection.new(@source)
+    end
+    subject { @object }
+
+    it { should respond_to(:size) }
+    it { subject.size.should == @source.size }    
+  end
 end

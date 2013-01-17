@@ -10,6 +10,6 @@ module KtouthBrand
     end
 
     extend Forwardable
-    def_delegators :@source, :each, :[]    
+    def_delegators :@source, :each, :[], :size 
   end
 end
