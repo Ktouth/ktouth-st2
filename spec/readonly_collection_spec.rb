@@ -27,4 +27,15 @@ describe "KtouthBrand::ReadOnlyCollection" do
     it { should respond_to(:each) }
     it { subject.to_a.should == @source }    
   end
+
+  describe '#[]' do
+    before :all do
+      @object = KtouthBrand::ReadOnlyCollection.new(@source)
+    end
+    subject { @object }
+
+    it { should respond_to(:[]) }
+    it { subject[0 .. -1].should == @source }    
+    it { subject[1].should == @source[1] }    
+  end
 end
