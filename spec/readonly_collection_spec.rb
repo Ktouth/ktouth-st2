@@ -48,4 +48,30 @@ describe "KtouthBrand::ReadOnlyCollection" do
     it { should respond_to(:size) }
     it { subject.size.should == @source.size }    
   end
+
+  describe '#empty?' do
+    before :all do
+      @object = KtouthBrand::ReadOnlyCollection.new(@source)
+      @subject2 = KtouthBrand::ReadOnlyCollection.new([])
+    end
+    subject { @object }
+
+    it { should respond_to(:empty?) }
+    it { subject.empty?.should == @source.empty? }
+    it { subject.empty?.should be_false }    
+    it { @subject2.empty?.should be_true }    
+  end
+
+  describe '#blank?' do
+    before :all do
+      @object = KtouthBrand::ReadOnlyCollection.new(@source)
+      @subject2 = KtouthBrand::ReadOnlyCollection.new([])
+    end
+    subject { @object }
+
+    it { should respond_to(:blank?) }
+    it { subject.blank?.should == @source.empty? }
+    it { subject.blank?.should be_false }    
+    it { @subject2.blank?.should be_true }    
+  end
 end
