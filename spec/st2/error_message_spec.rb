@@ -4,6 +4,7 @@ describe "KtouthBrand::ST2::ErrorMessage" do
   before :all do
     @text = 'sample error message!'
     @lineno = 152
+    @column = 11
   end
 
   subject { KtouthBrand::ST2::ErrorMessage }
@@ -18,6 +19,9 @@ describe "KtouthBrand::ST2::ErrorMessage" do
 
       it { expect { subject.new(@text, :line => /invalid/) }.to raise_error(ArgumentError) }
       it { expect { subject.new(@text, :line => 'this option is integer only') }.to raise_error(ArgumentError) }
+
+      it { expect { subject.new(@text, :column => /invalid/) }.to raise_error(ArgumentError) }
+      it { expect { subject.new(@text, :column => 'this option is integer only') }.to raise_error(ArgumentError) }
     end
     it { subject.new('valid error-message.', :line => 10, :column => 19).should be_a(subject) }
   end
@@ -36,6 +40,17 @@ describe "KtouthBrand::ST2::ErrorMessage" do
     context 'set :lineno option' do
       subject { KtouthBrand::ST2::ErrorMessage.new(@text, :line => @lineno) }
       it { subject.line.should == @lineno }
+    end
+  end
+
+  describe "#column" do
+    subject { KtouthBrand::ST2::ErrorMessage.new(@text) }
+    it { should be_respond_to(:column) }
+    it { subject.column.should be_nil }
+    
+    context 'set :columnno option' do
+      subject { KtouthBrand::ST2::ErrorMessage.new(@text, :column => @column) }
+      it { subject.column.should == @column }
     end
   end
 end

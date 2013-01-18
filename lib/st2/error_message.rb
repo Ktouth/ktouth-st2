@@ -6,10 +6,12 @@ module KtouthBrand
         raise ArgumentError, 'invalid option parameter' unless options.kind_of?(Hash)
         line = options.delete(:line)
         raise ArgumentError, 'line options is integer only' unless line.nil? || line.kind_of?(Integer)
+        column = options.delete(:column)
+        raise ArgumentError, 'column options is integer only' unless column.nil? || column.kind_of?(Integer)
 
-        @message, @line = message, line
+        @message, @line, @column = message, line, column
       end
-      attr_reader :message, :line
+      attr_reader :message, :line, :column
     end
   end
 end
