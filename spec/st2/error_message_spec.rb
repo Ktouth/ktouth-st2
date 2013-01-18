@@ -53,4 +53,23 @@ describe "KtouthBrand::ST2::ErrorMessage" do
       it { subject.column.should == @column }
     end
   end
+  
+  describe "#to_s" do
+    context 'no options message' do
+      subject { KtouthBrand::ST2::ErrorMessage.new(@text) }
+      it { subject.to_s.should == ['-', '-', @text].join(':') }
+    end 
+    context 'no :column option message' do
+      subject { KtouthBrand::ST2::ErrorMessage.new(@text, :line => @lineno) }
+      it { subject.to_s.should == [@lineno, '-', @text].join(':') }
+    end 
+    context 'no ;line option message' do
+      subject { KtouthBrand::ST2::ErrorMessage.new(@text, :column => @column) }
+      it { subject.to_s.should == ['-', @column, @text].join(':') }
+    end 
+    context 'full options message' do
+      subject { KtouthBrand::ST2::ErrorMessage.new(@text, :line => @lineno, :column => @column) }
+      it { subject.to_s.should == [@lineno, @column, @text].join(':') }
+    end 
+  end
 end

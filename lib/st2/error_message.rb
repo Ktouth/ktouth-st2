@@ -12,6 +12,10 @@ module KtouthBrand
         @message, @line, @column = message, line, column
       end
       attr_reader :message, :line, :column
+
+      def to_s
+        [line || '-', column || '-', message].join(':')
+      end
     end
   end
 end
