@@ -1,0 +1,9 @@
+# ./.autotest
+puts "##### start .autotest #####"
+Autotest.add_hook :initialize do |autotest| 
+  autotest.instance_eval do
+    puts "Autotest.add_hook initialize"
+    add_exception %r{^\./(?:coverage|db|doc|log|public|script|tmp|vendor)}
+  end
+end
+puts "##### finished .autotest #####"
