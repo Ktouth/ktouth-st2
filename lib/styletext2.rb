@@ -5,4 +5,5 @@ module KtouthBrand
 end
 
 require 'readonly_collection'
-require 'st2/node'
+
+[:node, :error_message,].each {|x| require "st2/#{x}" }
