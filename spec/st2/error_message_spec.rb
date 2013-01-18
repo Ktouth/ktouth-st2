@@ -13,7 +13,9 @@ describe "KtouthBrand::ST2::ErrorMessage" do
   describe ".new" do
     context 'argument exceptions' do
       it { expect { subject.new }.to raise_error(ArgumentError) }
-      it { expect { subject.new(/invalid/) }.to raise_error(ArgumentError) }
+      it { expect { subject.new(nil) }.to raise_error(ArgumentError) }
+      it { expect { subject.new('') }.to raise_error(ArgumentError) }
+      it { expect { subject.new('     ') }.to raise_error(ArgumentError) }
       it { expect { subject.new(15623) }.to raise_error(ArgumentError) }
       it { expect { subject.new('simple', /invalid/) }.to raise_error(ArgumentError) }
 
