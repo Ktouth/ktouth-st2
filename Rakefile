@@ -21,6 +21,7 @@ Jeweler::Tasks.new do |gem|
   gem.description = %Q{This library analyzes a document with the format in a simple symbol and converts it into HTML and other formats.}
   gem.email = "ktouth@k-brand.gr.jp"
   gem.authors = ["Keiichiro Nishi"]
+  gem.required_ruby_version = ">= 1.9.3"
   # dependencies defined in Gemfile
 end
 Jeweler::RubygemsDotOrgTasks.new
