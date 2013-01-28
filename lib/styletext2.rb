@@ -6,4 +6,5 @@ end
 
 require 'readonly_collection'
 
-[:node, :error_message,].each {|x| require "st2/#{x}" }
+[:node_validator, :error_message, :node
+].each {|x| require "st2/#{x}" }
