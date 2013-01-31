@@ -15,6 +15,7 @@ describe "KtouthBrand::ST2::NodeValidator" do
     it { should respond_to(:valid?) }
 
     it { subject.valid?.should be_nil }
+    it { expect { subject.add_message(KtouthBrand::ST2::ErrorMessage.new('error')) }.to change { subject.valid? }.from(nil).to(false) } 
   end
 
   describe '#add_message' do
