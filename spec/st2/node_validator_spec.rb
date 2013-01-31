@@ -16,4 +16,13 @@ describe "KtouthBrand::ST2::NodeValidator" do
 
     it { subject.valid?.should be_nil }
   end
+
+  describe '#add_message' do
+    subject { KtouthBrand::ST2::NodeValidator.new }
+    it { expect { subject.add_message }.to raise_error(ArgumentError) }
+    it { expect { subject.add_message(nil) }.to raise_error(ArgumentError) }
+    it { expect { subject.add_message(152321) }.to raise_error(ArgumentError) }
+    it { expect { subject.add_message('test') }.to raise_error(ArgumentError) }
+    it { expect { subject.add_message(KtouthBrand::ST2::ErrorMessage.new('error')) }.to change { subject.size }.from(0).to(1) } 
+  end
 end

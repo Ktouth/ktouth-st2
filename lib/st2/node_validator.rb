@@ -5,5 +5,10 @@ module KtouthBrand::ST2
     end
 
     def valid?; nil end
+
+    def add_message(message)
+      raise ArgumentError, 'message is not ErrorMessage' unless message.is_a?(ErrorMessage)
+      @source.push message
+    end
   end
 end
