@@ -1,6 +1,8 @@
 module KtouthBrand::ST2
-  class NodeValidator
-    def initialize; end
+  class NodeValidator < KtouthBrand::ReadOnlyCollection
+    def initialize
+      super([])
+    end
 
     def valid?; nil end
   end
