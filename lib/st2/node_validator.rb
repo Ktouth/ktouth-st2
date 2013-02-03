@@ -12,5 +12,20 @@ module KtouthBrand::ST2
       @source.push message
       @valid_p = false
     end
+
+    def validate(node)
+      raise ArgumentError, 'node is Node' unless node.is_a?(Node)
+
+      if @valid_p.nil?
+        func = lambda do |cur|
+          cur.each_error_message {|x| add_message(x) }
+          cur.each_node(&func) if cur.respond_to?(:each_node)
+        end
+        func.call(node)
+        
+        @valid_p = true if @valid_p.nil?
+      end
+      @valid_p
+    end
   end
 end
