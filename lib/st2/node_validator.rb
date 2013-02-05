@@ -14,7 +14,7 @@ module KtouthBrand::ST2
     end
 
     def validate(node)
-      raise ArgumentError, 'node is Node' unless node.is_a?(Node)
+      raise ArgumentError, 'node is not Node' unless node.is_a?(Node)
 
       if @valid_p.nil?
         func = lambda do |cur|
