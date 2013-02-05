@@ -4,4 +4,16 @@ describe "KtouthBrand::ST2::NodeFormatter" do
   subject { KtouthBrand::ST2::NodeFormatter }
   it { should be_instance_of(Class) }
   it { should_not be_respond_to(:new) }
+
+  def abstract_new; KtouthBrand::ST2::NodeFormatter.send(:new) end
+  
+  describe '.new' do
+    it { expect { abstract_new }.to_not raise_error }
+    it { abstract_new.instance_variable_get(:@string).should be_instance_of(StringIO) }
+  end
+
+  describe '#string' do
+    it { abstract_new.should be_respond_to(:string) }
+    it { abstract_new.string.should == '' }
+  end
 end
