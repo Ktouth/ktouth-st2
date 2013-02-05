@@ -11,6 +11,6 @@ module KtouthBrand::ST2
     def initialize
       @string = StringIO.new
     end
-    def_delegators :@string, :string
+    def string; @string.string.dup end
   end
 end
