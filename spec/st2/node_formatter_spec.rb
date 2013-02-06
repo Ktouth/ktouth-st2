@@ -18,7 +18,7 @@ describe "KtouthBrand::ST2::NodeFormatter" do
     context 'is proxy @string#string' do
       subject { abstract_new }
       def get; subject.instance_variable_get(:@string) end
-      it { expect { get.write 'test string' }.to change { pp subject; subject.string }.from('').to('test string') }
+      it { expect { get.write 'test string' }.to change { subject.string }.from('').to('test string') }
     end
   end
 end
