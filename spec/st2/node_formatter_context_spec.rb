@@ -33,4 +33,24 @@ describe "KtouthBrand::ST2::NodeFormatterContext" do
       it { subject.instance_variable_get(:@parent).should == @parent }
     end
   end
+  
+  shared_context 'context tree' do
+    before do
+      @formatter = KtouthBrand::ST2::NodeFormatter.send(:new)
+      @root = create(@formatter)
+      @contexts = [@root, create(@formatter, @root)]
+      @contexts.push create(@formatter, @contexts.last)
+    end
+    subject { @root }
+  end
+  
+  describe "#root" do
+    include_context 'context tree'
+    before do
+      @node = Object.new
+      @formatter.should_receive(:root_node).any_number_of_times.and_return(@node)
+    end
+    it { should be_respond_to(:root) }
+    it { @contexts.map {|x| x.root }.should == 3.times.map { @node } }
+  end
 end
