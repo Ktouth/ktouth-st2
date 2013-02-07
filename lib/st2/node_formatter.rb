@@ -9,7 +9,7 @@ module KtouthBrand::ST2
     extend Forwardable
 
     def initialize
-      @string = StringIO.new
+      @string, @root_node = StringIO.new, nil
     end
     def string; @string.string.dup end
 
@@ -18,5 +18,6 @@ module KtouthBrand::ST2
     def make_context(parent = nil)
       NodeFormatterContext.send(:new, self, parent)
     end
+    attr_reader :root_node
   end
 end

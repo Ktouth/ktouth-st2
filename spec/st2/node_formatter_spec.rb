@@ -56,4 +56,18 @@ describe "KtouthBrand::ST2::NodeFormatter" do
       it { expect { create }.to_not raise_error }
     end
   end
+
+  describe "(#root_node)" do
+    before :all do
+      @formatter = KtouthBrand::ST2::NodeFormatter.send(:new)
+      @parent = KtouthBrand::ST2::NodeFormatterContext.allocate
+    end
+    subject { @formatter }
+    it { should_not be_respond_to(:root_node) }
+    it { should be_respond_to(:root_node, true) }
+
+    def call(*args, &block); @formatter.send(:root_node, *args, &block) end
+  
+    it { call.should be_nil }
+  end
 end
