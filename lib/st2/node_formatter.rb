@@ -12,5 +12,11 @@ module KtouthBrand::ST2
       @string = StringIO.new
     end
     def string; @string.string.dup end
+
+    private
+
+    def make_context(parent = nil)
+      NodeFormatterContext.send(:new, self, parent)
+    end
   end
 end
