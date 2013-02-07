@@ -49,7 +49,11 @@ describe "KtouthBrand::ST2::NodeFormatterContext" do
     before do
       @node = Object.new
       @formatter.should_receive(:root_node).any_number_of_times.and_return(@node)
+      class <<@formatter
+        private :root_node
+      end
     end
+    it { @formatter.should_not be_respond_to(:root_node) }
     it { should be_respond_to(:root) }
     it { @contexts.map {|x| x.root }.should == 3.times.map { @node } }
   end
