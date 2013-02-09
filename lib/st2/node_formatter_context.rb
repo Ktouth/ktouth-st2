@@ -11,10 +11,10 @@ module KtouthBrand::ST2
       raise ArgumentError, 'formatter is not NodeFormatter' unless formatter.is_a?(NodeFormatter)
       raise ArgumentError, 'parent is not NodeFormatterContext' unless parent.nil? || parent.is_a?(NodeFormatterContext)
       @formatter, @parent = formatter, parent
-      @current = nil
+      @current = @before = @after = nil
     end
     def_delegator :@formatter, :root_node, :root
-    attr_reader :current
+    attr_reader :current, :before, :after
 
     def each_ancestor(&block)
       return  to_enum(:each_ancestor) if block.nil?

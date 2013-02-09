@@ -63,6 +63,18 @@ describe "KtouthBrand::ST2::NodeFormatterContext" do
     it { should be_respond_to(:current) }
     it { subject.current.should be_nil }
   end
+  
+  describe "#before" do
+    include_context 'context tree'
+    it { should be_respond_to(:before) }
+    it { subject.before.should be_nil }
+  end
+  
+  describe "#after" do
+    include_context 'context tree'
+    it { should be_respond_to(:after) }
+    it { subject.after.should be_nil }
+  end
 
   describe "#each_ancestor" do
     include_context 'context tree'
