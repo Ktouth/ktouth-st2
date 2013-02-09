@@ -57,4 +57,37 @@ describe "KtouthBrand::ST2::NodeFormatterContext" do
     it { should be_respond_to(:root) }
     it { @contexts.map {|x| x.root }.should == 3.times.map { @node } }
   end
+  
+  describe "#current" do
+    include_context 'context tree'
+    it { should be_respond_to(:current) }
+    it { subject.current.should be_nil }
+  end
+
+  describe "#each_ancestor" do
+    include_context 'context tree'
+    it { should be_respond_to(:each_ancestor) }
+    it { subject.each_ancestor.should  be_a(Enumerator) }
+
+    context 'is enumerate given block' do
+      before do
+        @result = []
+        @start = 0
+        @block = lambda {|c| @result.push(@start += 1); "sym#{@start}".to_sym }
+      end
+      it { expect { @contexts.last.each_ancestor(&@block) }.to change { @result.dup }.from([]).to([1, 2]) }
+      it { @contexts.last.each_ancestor(&@block).should == :sym2 }
+    end
+
+    context 'is node array of reverse context tree' do
+      before do
+        @contexts.each_with_index do |n, i|
+          n.should_receive(:current).any_number_of_times.and_return { i }
+        end
+      end
+      it { @contexts[0].each_ancestor.to_a.should == [] }
+      it { @contexts[1].each_ancestor.to_a.should == [0] }
+      it { @contexts[2].each_ancestor.to_a.should == [1, 0] }
+    end
+  end
 end
