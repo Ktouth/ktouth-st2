@@ -29,5 +29,18 @@ module KtouthBrand::ST2
       context.instance_eval { @before, @current, @after = before, current, after }
       nil
     end
+    
+    def call_node(context, first_method, *methods)
+      raise ArgumentError, 'context is not NodeFormatterContext' unless context.is_a?(NodeFormatterContext)
+      methods.unshift first_method
+      raise ArgumentError, 'methods[%s] is not Symbol' % m.map(&:to_s).join(', ') unless (m = methods.select {|x| !x.is_a?(Symbol) }).empty?
+
+      methods.each do |sym|
+        sym = "format_for_#{sym}".to_sym
+        return context.current.send(sym, context) if context.current.respond_to?(sym, true)
+      end
+
+      context.current.tap {|t| @string.write t.to_s }
+    end
   end
 end

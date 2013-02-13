@@ -111,4 +111,70 @@ describe "KtouthBrand::ST2::NodeFormatter" do
     it { expect { set(@context, @pre, @cur, nil) }.to change { get }.from([nil, nil, nil]).to([@pre, @cur, nil]) }
     it { expect { set(@context, nil, @cur, nil) }.to change { get }.from([nil, nil, nil]).to([nil, @cur, nil]) }
   end
+
+  describe "(#call_node)" do
+    before do
+      @formatter = KtouthBrand::ST2::NodeFormatter.send(:new)
+      @context = @formatter.send(:make_context)
+      @cur = ExampleNode.new(15)
+      @formatter.send(:set_context_nodes, @context, nil, @cur, nil)
+    end
+    subject { @formatter }
+
+    def call(*args, &block); @formatter.send(:call_node, *args, &block) end
+
+    it { should_not be_respond_to(:call_node) }
+    it { should be_respond_to(:call_node, true) }
+
+    it { expect { call }.to raise_error }
+    it { expect { call(nil) }.to raise_error }
+    it { expect { call(153213) }.to raise_error }
+    it { expect { call(/invalid/) }.to raise_error }
+    it { expect { call(@context) }.to raise_error }
+    it { expect { call(@context, 1536156) }.to raise_error }
+    it { expect { call(@context, nil) }.to raise_error }
+    it { expect { call(@context, 'test') }.to raise_error }
+    it { expect { call(@context, :html) }.to_not raise_error }
+    it { expect { call(@context, :html, :text, :inspect) }.to_not raise_error }
+
+    it { expect { call(@context, :test) }.to change { subject.string }.from('').to(@cur.to_s) }
+    
+    context 'call @context.current.format_for_html' do
+      before do
+        @cur.should_receive(:format_for_html).with(@context).tap do
+          k = class <<@cur; self end
+          k.send(:private, :format_for_html)
+          
+          @cur.should_not be_respond_to(:format_for_html)
+        end.once
+        @cur.should_not_receive(:format_for_text)
+        @cur.should_not_receive(:format_for_inspect)
+      end
+      it { expect { call(@context, :html) }.to_not raise_error }
+    end 
+    context 'call @context.current.format_for_text' do
+      before do
+        @cur.should_receive(:format_for_text).with(@context).tap do
+          k = class <<@cur; self end
+          k.send(:private, :format_for_text)
+          
+          @cur.should_not be_respond_to(:format_for_html)
+          @cur.should_not be_respond_to(:format_for_text)
+          @cur.should_not be_respond_to(:format_for_inspect)
+        end.once
+      end
+      it { expect { call(@context, :html, :text, :inspect) }.to_not raise_error }
+    end 
+    context 'call @context.current.to_s' do
+      before do
+        @cur.should_not be_respond_to(:format_for_html)
+        @cur.should_not be_respond_to(:format_for_text)
+        @cur.should_not be_respond_to(:format_for_inspect)
+
+        str = @cur.to_s
+        @cur.should_receive(:to_s).once.and_return(str)
+      end
+      it { expect { call(@context, :html, :text, :inspect) }.to_not raise_error }
+    end 
+  end
 end
