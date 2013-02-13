@@ -1,4 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
+require File.expand_path(File.dirname(__FILE__) + '/../dummy_node_tree')
 
 describe "KtouthBrand::ST2::NodeFormatter" do
   subject { KtouthBrand::ST2::NodeFormatter }
@@ -69,5 +70,45 @@ describe "KtouthBrand::ST2::NodeFormatter" do
     def call(*args, &block); @formatter.send(:root_node, *args, &block) end
   
     it { call.should be_nil }
+  end
+  
+  describe "(#set_context_nodes)" do
+    before do
+      @formatter = KtouthBrand::ST2::NodeFormatter.send(:new)
+      @context = @formatter.send(:make_context)
+      @pre, @cur, @next = 3.times.map {|x| ExampleNode.new(x) }
+    end
+    subject { @formatter }
+
+    def set(*args, &block); @formatter.send(:set_context_nodes, *args, &block) end
+
+    it { should_not be_respond_to(:set_context_nodes) }
+    it { should be_respond_to(:set_context_nodes, true) }
+
+    it { expect { set }.to raise_error }
+    it { expect { set(@context) }.to raise_error }
+    it { expect { set(@context, nil) }.to raise_error }
+    it { expect { set(@context, @pre, @cur) }.to raise_error }
+
+    it { expect { set(@context, @pre, @cur, @next) }.to_not raise_error }
+    it { expect { set(@context, nil, @cur, @next) }.to_not raise_error }
+    it { expect { set(@context, @pre, @cur, nil) }.to_not raise_error }
+    it { expect { set(@context, nil, @cur, nil) }.to_not raise_error }
+
+    it { expect { set(@context, @pre, nil, @next) }.to raise_error }
+    it { expect { set(@context, 156123, @cur, @next) }.to raise_error }
+    it { expect { set(@context, @pre, 1253, @next) }.to raise_error }
+    it { expect { set(@context, @pre, @cur, 'test') }.to raise_error }
+    it { expect { set(@context, :simbole, @cur, :invalid) }.to raise_error }
+    it { expect { set(nil, @pre, @cur, @next) }.to raise_error }
+    it { expect { set(:unknown, @pre, @cur, @next) }.to raise_error }
+    it { expect { set(/notinstance/, @pre, @cur, @next) }.to raise_error }
+
+    def get; [@context.before, @context.current, @context.after] end
+
+    it { expect { set(@context, @pre, @cur, @next) }.to change { get }.from([nil, nil, nil]).to([@pre, @cur, @next]) }
+    it { expect { set(@context, nil, @cur, @next) }.to change { get }.from([nil, nil, nil]).to([nil, @cur, @next]) }
+    it { expect { set(@context, @pre, @cur, nil) }.to change { get }.from([nil, nil, nil]).to([@pre, @cur, nil]) }
+    it { expect { set(@context, nil, @cur, nil) }.to change { get }.from([nil, nil, nil]).to([nil, @cur, nil]) }
   end
 end
