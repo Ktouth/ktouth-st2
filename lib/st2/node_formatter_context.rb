@@ -12,6 +12,7 @@ module KtouthBrand::ST2
       raise ArgumentError, 'parent is not NodeFormatterContext' unless parent.nil? || parent.is_a?(NodeFormatterContext)
       @formatter, @parent = formatter, parent
       @current = @before = @after = nil
+      @footer = nil
     end
     def_delegator :@formatter, :root_node, :root
     attr_reader :current, :before, :after
@@ -23,6 +24,12 @@ module KtouthBrand::ST2
         r = block.call(cur.current)        
       end
       r
+    end
+
+    def set_footer_proc(&proc)
+      raise 'no block given' unless proc
+      @footer = proc
+      nil
     end
   end
 end

@@ -35,7 +35,10 @@ module KtouthBrand::ST2
       raise ArgumentError, 'current is not Node' unless current.is_a?(Node)
       raise ArgumentError, 'after is not Node' unless after.is_a?(Node) || after.nil?
       
-      context.instance_eval { @before, @current, @after = before, current, after }
+      context.instance_eval do
+        @before, @current, @after = before, current, after
+        @footer = nil
+      end
       nil
     end
     
@@ -79,6 +82,9 @@ module KtouthBrand::ST2
       enumer = context.current.respond_to?(:each_node) ? context.current.to_enum(:each_node) : nil
       call_node(context)
       call_node_array(enumer, context) unless enumer.nil?
+      if func = context.instance_variable_get(:@footer)
+        func[context]
+      end
       [current, after]
     end
   end

@@ -1,4 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
+require File.expand_path(File.dirname(__FILE__) + '/../dummy_node_tree')
 
 describe "KtouthBrand::ST2::NodeFormatterContext" do
   subject { KtouthBrand::ST2::NodeFormatterContext }
@@ -100,6 +101,58 @@ describe "KtouthBrand::ST2::NodeFormatterContext" do
       it { @contexts[0].each_ancestor.to_a.should == [] }
       it { @contexts[1].each_ancestor.to_a.should == [0] }
       it { @contexts[2].each_ancestor.to_a.should == [1, 0] }
+    end
+  end
+
+  describe "#set_footer_proc" do
+    before :all do
+      @klass = Class.new(KtouthBrand::ST2::NodeFormatter)
+      @klass.module_eval do
+        private
+        def call_node(c); super(c, :dummy) end     
+      end
+      @proc = lambda do |c|
+        c.should be_a(KtouthBrand::ST2::NodeFormatterContext)
+      end
+    end
+    before do
+      @formatter = @klass.send(:new)
+      @context = @formatter.send(:make_context) 
+    end
+    subject { @context }
+
+    def get_footer(context)
+      context.instance_variable_get(:@footer)
+    end
+
+    it { should be_respond_to(:set_footer_proc) }
+    it { subject.instance_variable_get(:@footer).should be_nil }
+    it { expect { subject.set_footer_proc }.to raise_error }
+    it { expect { subject.set_footer_proc(15, &@proc) }.to raise_error }
+    it { expect { subject.set_footer_proc('test', &@proc) }.to raise_error }
+    it { expect { subject.set_footer_proc(&@proc) }.to change { get_footer(subject) }.from(nil) }
+    it { subject.set_footer_proc(&@proc).should be_nil }
+    it { subject.set_footer_proc(&@proc); get_footer(subject).should == @proc }
+
+    context 'all into node' do
+      include_context 'tree nodes'
+      before do
+        @result = []
+        @tree_current_indexes_with_footer.sort.should == (@tree_current_indexes + @tree_current_indexes.map {|x| -x }).sort
+      end
+      def set(&proc)
+        @nodes.each do |n|
+          n.should_receive(:format_for_dummy) {|c| proc[c] }.once
+        end
+      end
+      def set_footer(context)
+        @result.push context.current.id
+        context.set_footer_proc do |c|
+          @result.push(-context.current.id)
+        end
+      end
+      it { expect { set {|c| @result.push(get_footer(c)); c.set_footer_proc(&@proc) }; @formatter.format(@nodes[0]) }.to change { @result }.to(@nodes.size.times.map {|x| nil }) }
+      it { expect { set {|c| set_footer(c) }; @formatter.format(@nodes[0]) }.to change { @result }.to(@tree_current_indexes_with_footer) }
     end
   end
 end
