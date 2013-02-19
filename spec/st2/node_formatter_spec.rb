@@ -177,4 +177,77 @@ describe "KtouthBrand::ST2::NodeFormatter" do
       it { expect { call(@context, :html, :text, :inspect) }.to_not raise_error }
     end 
   end
+
+  describe '#format' do
+    before :all do
+      @klass = Class.new(KtouthBrand::ST2::NodeFormatter)
+      @klass.module_eval do
+        def call_node(c); super(c, :dummy) end
+      end      
+    end
+    before do
+      @formatter = @klass.send(:new)
+    end
+    subject { @formatter }
+
+    it { should be_respond_to(:format) }
+
+    it { expect { subject.format }.to raise_error(ArgumentError) }
+    it { expect { subject.format(151) }.to raise_error(ArgumentError) }
+    it { expect { subject.format('test') }.to raise_error(ArgumentError) }
+    it { expect { subject.format(Time.now) }.to raise_error(ArgumentError) }
+
+    context 'result and string' do
+      before do
+        e = @example = ExampleNode.new(1)
+        @formatter.tap do |t|
+          c = t.send(:make_context)
+          t.should_receive(:make_context).with(nil).once.and_return(c)
+          t.should_receive(:set_context_nodes).with(c, nil, e, nil).once do |con, *args|
+            con.instance_eval { @before, @current, @after = *args }
+          end
+        end
+      end
+      it { expect { subject.format(@example) }.to_not raise_error }
+      it { subject.format(@example).should == subject }
+      it { expect { subject.format(@example) }.to change { subject.string }.from('').to(@example.to_s) }
+    end
+
+    context 'is scan all tree nodes' do
+      include_context 'tree nodes'
+      before do
+        @result = result = []
+        @nodes.each do |n|
+          assign_format_for(n, :dummy) {|c| result.push self.id }
+        end
+      end
+      it { expect { subject.format(@nodes[0]) }.to change { @result }.to(@tree_current_indexes) }
+    end
+
+    context 'is matched context attributes' do
+      include_context 'tree nodes'
+      def get(sym)
+        array = []
+        @nodes.each do |n|
+          assign_format_for(n, :dummy) {|c| k = c.send(sym); array.push(k.nil? ? nil : k.id) }
+        end
+        subject.format(@nodes[0])
+        array
+      end
+      def get_parent
+        array = []
+        @nodes.each do |n|
+          assign_format_for(n, :dummy) {|c| k = c.each_ancestor.first; array.push(k.nil? ? nil : k.id) }
+        end
+        subject.format(@nodes[0])
+        array
+      end
+
+      it { get(:root).should == @nodes.size.times.map {|x| @nodes[0].id } }
+      it { get(:current).should == @tree_current_indexes }
+      it { get(:before).should == @tree_before_indexes }
+      it { get(:after).should == @tree_after_indexes }
+      it { get_parent.should == @tree_parent_indexes }
+    end
+  end
 end

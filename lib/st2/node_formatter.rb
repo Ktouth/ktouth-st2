@@ -13,6 +13,15 @@ module KtouthBrand::ST2
     end
     def string; @string.string.dup end
 
+    def format(root)
+      raise ArgumentError, 'root is not Node' unless root.is_a?(Node)
+
+      @root_node = root
+      call_node_array([@root_node])
+
+      self
+    end
+
     private
 
     def make_context(parent = nil)
@@ -41,6 +50,36 @@ module KtouthBrand::ST2
       end
 
       context.current.tap {|t| @string.write t.to_s }
+    end
+
+    def call_node_array(enumer, parent_context = nil)
+      context, first, second = make_context(parent_context), nil, nil
+      count = 0
+      enumer.each do |node|
+        case count
+        when 0; first = node
+        when 1; second = node
+        when 2
+          call_context(context, nil, first, second)
+          first, second = call_context(context, first, second, node)
+        else           
+          first, second = call_context(context, first, second, node)
+        end
+        count += 1
+      end
+      if count == 1
+        call_context(context, nil, first, nil)
+      else
+        call_context(context, nil, first, second) if count == 2
+        call_context(context, first, second, nil)
+      end
+    end
+    def call_context(context, before, current, after)
+      set_context_nodes(context, before, current, after)
+      enumer = context.current.respond_to?(:each_node) ? context.current.to_enum(:each_node) : nil
+      call_node(context)
+      call_node_array(enumer, context) unless enumer.nil?
+      [current, after]
     end
   end
 end
