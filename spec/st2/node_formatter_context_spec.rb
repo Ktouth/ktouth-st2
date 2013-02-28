@@ -104,7 +104,7 @@ describe "KtouthBrand::ST2::NodeFormatterContext" do
     end
   end
 
-  describe "#set_footer_proc" do
+  shared_context 'make node-context' do
     before :all do
       @klass = Class.new(KtouthBrand::ST2::NodeFormatter)
       @klass.module_eval do
@@ -119,6 +119,10 @@ describe "KtouthBrand::ST2::NodeFormatterContext" do
       @formatter = @klass.send(:new)
       @context = @formatter.send(:make_context) 
     end
+  end
+
+  describe "#set_footer_proc" do
+    include_context 'make node-context'
     subject { @context }
 
     def get_footer(context)
