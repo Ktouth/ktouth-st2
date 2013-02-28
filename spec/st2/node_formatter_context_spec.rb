@@ -159,4 +159,33 @@ describe "KtouthBrand::ST2::NodeFormatterContext" do
       it { expect { set {|c| set_footer(c) }; @formatter.format(@nodes[0]) }.to change { @result }.to(@tree_current_indexes_with_footer) }
     end
   end
+
+  describe "#make_dummy_node" do
+    include_context 'make node-context'
+    before do
+      @called = _call_ = []
+      @proc_dummy = lambda {|c| _call_.push true } 
+    end
+    subject { @context }
+    
+    it { should be_respond_to(:make_dummy_node) }
+    it { expect { subject.make_dummy_node }.to raise_error }
+    it { expect { subject.make_dummy_node(&@proc_dummy) }.to raise_error }
+    it { expect { subject.make_dummy_node(154, &@proc_dummy) }.to raise_error }
+    it { expect { subject.make_dummy_node('test', &@proc_dummy) }.to raise_error }
+    it { expect { subject.make_dummy_node(/test/, &@proc_dummy) }.to raise_error }
+    it { expect { subject.make_dummy_node(:dummy, 156358) }.to raise_error }
+    it { expect { subject.make_dummy_node(:dummy, '156358') }.to raise_error }
+    it { expect { subject.make_dummy_node(:dummy, /invalid/) }.to raise_error }
+    it { expect { subject.make_dummy_node(:dummy, @proc_dummy) {|x| } }.to raise_error }
+
+    it { expect { subject.make_dummy_node(:dummy, @proc_dummy) }.to_not raise_error }
+    it { expect { subject.make_dummy_node(:dummy, &@proc_dummy) }.to_not raise_error }
+
+    it { subject.make_dummy_node(:dummy, &@proc_dummy).should be_a(KtouthBrand::ST2::Node) }
+    it { subject.make_dummy_node(:dummy, &@proc_dummy).should_not be_respond_to(:format_for_dummy) }
+    it { subject.make_dummy_node(:dummy, &@proc_dummy).should be_respond_to(:format_for_dummy, true) }
+    
+    it { expect { subject.make_dummy_node(:dummy, @proc_dummy).send(:format_for_dummy, subject) }.to change { @called.size }.from(0).to(1) }
+  end
 end

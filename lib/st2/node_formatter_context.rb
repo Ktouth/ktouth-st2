@@ -31,5 +31,19 @@ module KtouthBrand::ST2
       @footer = proc
       nil
     end
+
+    def make_dummy_node(symbol, proc = nil, &block)
+      raise ArgumentError, 'symbol is not Symbol' unless symbol.is_a?(Symbol)
+      raise ArgumentError, 'proc is not Proc or nil' unless proc.nil? || proc.is_a?(Proc)
+      raise ArgumentError, 'block is not given' unless proc || block
+      raise ArgumentError, 'conflict proc and block' if proc && block
+      
+      Node.send(:new).tap do |n|
+        sym = "format_for_#{symbol}".to_sym
+        k = class <<n; self end
+        k.send(:define_method, sym, proc || block)
+        k.send(:private, sym)
+      end
+    end
   end
 end
