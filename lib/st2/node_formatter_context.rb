@@ -12,8 +12,8 @@ module KtouthBrand::ST2
       raise ArgumentError, 'parent is not NodeFormatterContext' unless parent.nil? || parent.is_a?(NodeFormatterContext)
       @formatter, @parent = formatter, parent
       @current = @before = @after = nil
-      @footer = nil
-      @child_nodes = nil
+      @footer = @child_nodes = nil
+      @options = @parent ? nil : {}
     end
     def_delegator :@formatter, :root_node, :root
     attr_reader :current, :before, :after, :child_nodes
@@ -50,6 +50,16 @@ module KtouthBrand::ST2
     def child_nodes=(array)
       raise ArgumentError, 'array is not receive :each' unless array.nil? || array.respond_to?(:each)
       @child_nodes = array || []
+    end
+    
+    def [](key)
+      raise ArgumentError, 'key is not string or empty' unless key.kind_of?(String) && (key != '')
+      (@parent || @options)[key]
+    end
+    
+    def []=(key, value)
+      raise ArgumentError, 'key is not string or empty' unless key.kind_of?(String) && (key != '')
+      (@parent || @options)[key] = value
     end
   end
 end

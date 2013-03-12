@@ -249,4 +249,47 @@ describe "KtouthBrand::ST2::NodeFormatterContext" do
       it { expect { @formatter.format(@nodes[1]) }.to change { @result }.to(@numbers) }
     end
   end
+
+  describe "#[]" do
+    include_context 'make node-context'
+    subject { @context }
+    
+    def get_var(context); context.instance_variable_get(:@options) end
+    
+    it { should be_respond_to(:[]) }
+    it { should be_respond_to(:[]=) }    
+
+    it { get_var(subject).should == {} }
+
+    context 'options access' do
+      before do
+        get_var(@context).should_receive(:[]).with('number').and_return(190)
+      end
+      it { subject['number'].should == 190 }
+    end
+    it { expect { subject[nil] }.to raise_error }
+    it { expect { subject[1568213] }.to raise_error }
+    it { expect { subject[''] }.to raise_error }
+    it { expect { subject[:symbol] }.to raise_error }
+
+    it { expect { subject['test'] = :ok }.to change { get_var(subject)['test'] }.from(nil).to(:ok) }
+    it { expect { subject[nil]= 111 }.to raise_error }
+    it { expect { subject[1568213]= 111 }.to raise_error }
+    it { expect { subject['']= 111 }.to raise_error }
+    it { expect { subject[:symbol]= 111 }.to raise_error }
+
+    context 'descendants inherit options access' do
+      before do
+        @context['test'] = :ok
+        @context['this.is'] = 156213
+        @child_context = @formatter.send(:make_context, @context)
+      end
+      subject { @child_context }
+      
+      it { get_var(subject).should be_nil }
+      it { subject['test'].should == :ok }
+      it { expect { subject['this.is'] = 'accessed' }.to change { @context['this.is'] }.from(156213).to('accessed') }
+      it { expect { subject['new'] = :found }.to change { @context['new'] }.from(nil).to(:found) }
+    end
+  end
 end
