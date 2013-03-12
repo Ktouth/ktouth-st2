@@ -37,6 +37,7 @@ module KtouthBrand::ST2
       
       context.instance_eval do
         @before, @current, @after = before, current, after
+        @child_nodes = @current.respond_to?(:each_node) ? @current.to_enum(:each_node) : nil
         @footer = nil
       end
       nil
@@ -79,9 +80,8 @@ module KtouthBrand::ST2
     end
     def call_context(context, before, current, after)
       set_context_nodes(context, before, current, after)
-      enumer = context.current.respond_to?(:each_node) ? context.current.to_enum(:each_node) : nil
       call_node(context)
-      call_node_array(enumer, context) unless enumer.nil?
+      call_node_array(context.child_nodes, context) if context.child_nodes.respond_to?(:each)
       if func = context.instance_variable_get(:@footer)
         func[context]
       end

@@ -13,9 +13,10 @@ module KtouthBrand::ST2
       @formatter, @parent = formatter, parent
       @current = @before = @after = nil
       @footer = nil
+      @child_nodes = nil
     end
     def_delegator :@formatter, :root_node, :root
-    attr_reader :current, :before, :after
+    attr_reader :current, :before, :after, :child_nodes
 
     def each_ancestor(&block)
       return  to_enum(:each_ancestor) if block.nil?
@@ -44,6 +45,11 @@ module KtouthBrand::ST2
         k.send(:define_method, sym, proc || block)
         k.send(:private, sym)
       end
+    end
+
+    def child_nodes=(array)
+      raise ArgumentError, 'array is not receive :each' unless array.nil? || array.respond_to?(:each)
+      @child_nodes = array || []
     end
   end
 end

@@ -188,4 +188,65 @@ describe "KtouthBrand::ST2::NodeFormatterContext" do
     
     it { expect { subject.make_dummy_node(:dummy, @proc_dummy).send(:format_for_dummy, subject) }.to change { @called.size }.from(0).to(1) }
   end
+  
+  describe "#child_nodes" do
+    include_context 'make node-context'
+    include_context 'tree nodes'
+    before do
+      
+    end
+    subject { @context }
+
+    def set_current(node); @formatter.send(:set_context_nodes, subject, nil, node, nil) end
+    def get_array(num);  
+      node = @nodes[num]
+      node.respond_to?(:each_node) ? node.to_enum(:each_node).to_a : nil
+    end
+ 
+
+    it { should be_respond_to(:child_nodes) }
+    it { should be_respond_to(:child_nodes=) }
+    it { subject.child_nodes.should be_nil }
+    
+    it { expect { set_current(@nodes[22]) }.to_not change { subject.child_nodes.to_a } }
+    it { expect { set_current(@nodes[12]) }.to change { subject.child_nodes.to_a }.to(get_array(12)) }
+    it { expect { set_current(@nodes[18]) }.to change { subject.child_nodes.to_a }.to(get_array(18)) }
+    it { expect { set_current(@nodes[20]) }.to change { subject.child_nodes.to_a }.to(get_array(20)) }
+    it { expect { set_current(@nodes[7]) }.to change { subject.child_nodes.to_a }.to(get_array(7)) }
+
+    context 'set value' do
+      before do
+        set_current(@nodes[20])
+        @ary = get_array(20)
+      end
+      it { expect { @context.child_nodes = nil }.to change { subject.child_nodes.to_a }.from(@ary).to([]) }
+      it { expect { @context.child_nodes = [] }.to change { subject.child_nodes.to_a }.from(@ary).to([]) }
+      it { expect { @context.child_nodes = get_array(7) }.to change { subject.child_nodes.to_a }.from(@ary).to(get_array(7)) }
+      it { expect { @context.child_nodes = 156213 }.to raise_error }
+    end
+    
+    context 'scan for changed nodes' do
+      before do
+  #  1 -   4 -  8 -  20 -  28
+  #                        29
+  #                        30
+  #        5
+  #        6 -  13
+        @result = r = []
+        @numbers = [1, 4, -100, 8, 20, 28, 29, 30, -200, 5, 6, 13]
+        @numbers.select {|x| ![4, -100, -200].include?(x) }.each do |n|
+          assign_format_for(@nodes[n], :dummy) {|c| r.push c.current.id }
+        end
+        new_nodes = @nodes[8]
+        assign_format_for(@nodes[4], :dummy) do |c|
+          r.push c.current.id
+          dmy1 = c.make_dummy_node(:dummy) {|cc| r.push(-100) } 
+          dmy2 = c.make_dummy_node(:dummy) {|cc| r.push(-200) }
+          c.child_nodes = [dmy1, new_nodes, dmy2] 
+        end
+      end
+      it { expect { @formatter.format(@nodes[1]) }.to_not raise_error }
+      it { expect { @formatter.format(@nodes[1]) }.to change { @result }.to(@numbers) }
+    end
+  end
 end
