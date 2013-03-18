@@ -87,5 +87,7 @@ module KtouthBrand::ST2
       end
       [current, after]
     end
+
+    def escape(text); text end
   end
 end

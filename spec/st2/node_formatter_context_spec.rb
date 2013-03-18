@@ -292,4 +292,50 @@ describe "KtouthBrand::ST2::NodeFormatterContext" do
       it { expect { subject['new'] = :found }.to change { @context['new'] }.from(nil).to(:found) }
     end
   end
+
+  describe "#write" do
+    include_context 'make node-context'
+    subject { @context }
+
+    def get_string; @formatter.string end
+
+    it { should be_respond_to(:write) }
+
+    it { expect { subject.write }.to_not change { get_string } }
+    it { expect { subject.write('test string') }.to change { get_string }.to('test string') }
+    it { expect { subject.write(198231) }.to change { get_string }.to('198231') }
+    it { expect { subject.write(/test/) }.to change { get_string }.to(/test/.to_s) }
+    it { expect { subject.write(:symbol) }.to change { get_string }.to('symbol') }
+    it { expect { subject.write("\n") }.to change { get_string }.to("\n") }
+    it { subject.write('string').should == subject }
+    it { expect { subject.write('this').write(:is).write(["OK"]) }.to change { get_string }.to('thisis["OK"]') }
+  end
+
+  describe "#write_escape" do
+    include_context 'make node-context'
+    subject { @context }
+
+    def get_string; @formatter.string end
+
+    it { should be_respond_to(:write_escape) }
+
+    it { expect { subject.write_escape }.to_not change { get_string } }
+    it { expect { subject.write_escape('test string') }.to change { get_string }.to('test string') }
+    it { expect { subject.write_escape(198231) }.to change { get_string }.to('198231') }
+    it { expect { subject.write_escape(/test/) }.to change { get_string }.to(/test/.to_s) }
+    it { expect { subject.write_escape(:symbol) }.to change { get_string }.to('symbol') }
+    it { expect { subject.write_escape("\n") }.to change { get_string }.to("\n") }
+    it { subject.write_escape('string').should == subject }
+
+    context 'is call @formatter(#escape)' do
+      before do
+        @formatter.should_receive(:escape).with("test").and_return("valid result")
+        class <<@formatter
+          private :escape
+        end
+        @formatter.should_not be_respond_to(:escape)
+      end
+      it { expect { subject.write_escape('test') }.to change { get_string }.to('valid result') }
+    end
+  end
 end

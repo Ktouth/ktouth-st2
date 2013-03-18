@@ -61,5 +61,12 @@ module KtouthBrand::ST2
       raise ArgumentError, 'key is not string or empty' unless key.kind_of?(String) && (key != '')
       (@parent || @options)[key] = value
     end
+
+    def write(text = nil)
+      @formatter.instance_variable_get(:@string).write(text)
+      self
+    end
+
+    def write_escape(text = nil); write(@formatter.send(:escape, text)) end
   end
 end
