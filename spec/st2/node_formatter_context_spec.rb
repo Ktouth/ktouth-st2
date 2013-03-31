@@ -338,4 +338,53 @@ describe "KtouthBrand::ST2::NodeFormatterContext" do
       it { expect { subject.write_escape('test') }.to change { get_string }.to('valid result') }
     end
   end
+
+  describe "#indent_text" do
+    include_context 'make node-context'
+    subject { @context }
+
+    def get_string; @formatter.string end
+
+    it { should be_respond_to(:indent_text) }
+    it { should be_respond_to(:indent_text=) }
+    it { subject.indent_text.should be_nil }
+
+    it { expect { subject.indent_text(:no_args) }.to raise_error(ArgumentError) }
+    it { expect { subject.indent_text = nil }.to_not raise_error(ArgumentError) }
+    it { expect { subject.indent_text = /.*/ }.to raise_error(ArgumentError) }
+    it { expect { subject.indent_text = 152354 }.to raise_error(ArgumentError) }
+    it { expect { subject.indent_text = 'sample' }.to change { subject.indent_text }.to('sample') }
+
+    context 'write indent if first charactor of line' do
+      before do
+        @context.indent_text = 'test>>'
+        @source = 'this is text.'
+        @source2 = "new line."
+        @result = 'test>>' + @source
+        @result2 = @result + @source
+        @result3 = "#{@result2}\ntest>>#{@source2}"
+      end
+      it { expect { subject.write(@source) }.to change { get_string }.to(@result) }
+      it { expect { subject.write(@source); subject.write(@source) }.to change { get_string }.to(@result2) }
+      it { expect { subject.write(@source); subject.write(@source); subject.write("\n"); subject.write(@source2) }.to change { get_string }.to(@result3) }
+    end
+
+    context 'write multi-indent if first charactor of line' do
+      before do
+        @context.indent_text = 'test>>'
+        @context2 = @formatter.send(:make_context, @context)
+        @context3 = @formatter.send(:make_context, @context2)
+        @context3.indent_text = 're: '
+        @source = 'this is text.'
+        @source2 = "new line."
+        @result = 'test>>re: ' + @source
+        @result2 = @result + @source
+        @result3 = "#{@result2}\n// re: #{@source2}"
+      end
+      subject { @context3 }
+      it { expect { subject.write(@source) }.to change { get_string }.to(@result) }
+      it { expect { subject.write(@source); subject.write(@source) }.to change { get_string }.to(@result2) }
+      it { expect { subject.write(@source); subject.write(@source); subject.write("\n"); @context.indent_text = '// '; subject.write(@source2) }.to change { get_string }.from("").to(@result3) }
+    end
+  end
 end

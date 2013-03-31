@@ -10,6 +10,10 @@ module KtouthBrand::ST2
 
     def initialize
       @string, @root_node = StringIO.new, nil
+      class <<@string
+        attr_accessor :__indent_flag
+      end
+      @string.__indent_flag = true
     end
     def string; @string.string.dup end
 

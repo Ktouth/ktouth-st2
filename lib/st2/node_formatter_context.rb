@@ -14,9 +14,10 @@ module KtouthBrand::ST2
       @current = @before = @after = nil
       @footer = @child_nodes = nil
       @options = @parent ? nil : {}
+      @indent_text, @writer = nil, @formatter.instance_variable_get(:@string)
     end
     def_delegator :@formatter, :root_node, :root
-    attr_reader :current, :before, :after, :child_nodes
+    attr_reader :current, :before, :after, :child_nodes, :indent_text
 
     def each_ancestor(&block)
       return  to_enum(:each_ancestor) if block.nil?
@@ -63,10 +64,26 @@ module KtouthBrand::ST2
     end
 
     def write(text = nil)
-      @formatter.instance_variable_get(:@string).write(text)
+      lines = text.to_s.each_line do |line|
+        if @writer.__indent_flag
+          ary, cur = [], self
+          while cur
+            ary.push cur.indent_text if cur.indent_text 
+            cur = cur.instance_variable_get(:@parent)
+          end
+          ary.reverse_each {|x| @writer.write(x) }
+        end
+        @writer.write(line)
+        @writer.__indent_flag = line =~ /\n\z/
+      end
       self
     end
 
     def write_escape(text = nil); write(@formatter.send(:escape, text)) end
+    
+    def indent_text=(val)
+      raise ArgumentError, 'val is not string or nil' unless val.nil? || val.is_a?(String)
+      @indent_text = val
+    end
   end
 end
