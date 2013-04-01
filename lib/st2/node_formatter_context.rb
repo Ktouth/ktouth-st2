@@ -4,6 +4,59 @@ module KtouthBrand::ST2
   class NodeFormatterContext
     class <<self
       private :new
+      
+      private
+      
+      def make_writer_proxy(parent = nil)
+        unless @proxy_class
+          @proxy_class = Class.new
+          @proxy_class.module_eval do
+            def initialize(parent)
+              @writer, @parent, @flag = nil, parent, true
+            end
+            attr_reader :indent_text
+            def indent_text=(text)
+              raise ArgumentError, 'val is not string or nil' unless text.nil? || text.is_a?(String)
+              @indent_text = text
+            end
+            def write(text = nil)
+              text.to_s.each_line do |line|
+                if indent?
+                  write_with(line, indent_text)
+                else
+                  write_text(line)
+                end 
+              end
+            end
+            def set_writer(io, flag = true)
+              @writer, @flag = io, flag
+            end
+            
+            def indent?
+              @writer ? @flag : @parent.indent?
+            end
+
+            def write_with(text, *indents)
+              if @writer
+                indents.each {|x| @writer.write(x) if x }
+                @writer.write(text)
+                @flag = text =~ /\n\z/
+              else
+                @parent.write_with(text, @parent.indent_text, *indents)
+              end
+            end
+            def write_text(text)
+              if @writer
+                @writer.write(text)
+                @flag = text =~ /\n\z/
+              else
+                @parent.write_text(text)
+              end
+            end
+          end
+        end
+        @proxy_class.new(parent)
+      end
     end
     extend Forwardable
 
@@ -14,10 +67,12 @@ module KtouthBrand::ST2
       @current = @before = @after = nil
       @footer = @child_nodes = nil
       @options = @parent ? nil : {}
-      @indent_text, @writer = nil, @formatter.instance_variable_get(:@string)
+      @writer = (@parent || @formatter).instance_variable_get(:@child_writer)
+      @child_writer = self.class.send(:make_writer_proxy, @writer)
     end
+    attr_reader :current, :before, :after, :child_nodes
     def_delegator :@formatter, :root_node, :root
-    attr_reader :current, :before, :after, :child_nodes, :indent_text
+    def_delegators :@child_writer, :indent_text, :indent_text=
 
     def each_ancestor(&block)
       return  to_enum(:each_ancestor) if block.nil?
@@ -64,26 +119,10 @@ module KtouthBrand::ST2
     end
 
     def write(text = nil)
-      lines = text.to_s.each_line do |line|
-        if @writer.__indent_flag
-          ary, cur = [], self
-          while cur
-            ary.push cur.indent_text if cur.indent_text 
-            cur = cur.instance_variable_get(:@parent)
-          end
-          ary.reverse_each {|x| @writer.write(x) }
-        end
-        @writer.write(line)
-        @writer.__indent_flag = line =~ /\n\z/
-      end
+      @writer.write(text)
       self
     end
 
     def write_escape(text = nil); write(@formatter.send(:escape, text)) end
-    
-    def indent_text=(val)
-      raise ArgumentError, 'val is not string or nil' unless val.nil? || val.is_a?(String)
-      @indent_text = val
-    end
   end
 end

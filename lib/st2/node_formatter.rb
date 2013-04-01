@@ -10,10 +10,8 @@ module KtouthBrand::ST2
 
     def initialize
       @string, @root_node = StringIO.new, nil
-      class <<@string
-        attr_accessor :__indent_flag
-      end
-      @string.__indent_flag = true
+      @child_writer = NodeFormatterContext.send(:make_writer_proxy)
+      @child_writer.set_writer(@string)
     end
     def string; @string.string.dup end
 

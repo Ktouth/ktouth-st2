@@ -355,26 +355,44 @@ describe "KtouthBrand::ST2::NodeFormatterContext" do
     it { expect { subject.indent_text = 152354 }.to raise_error(ArgumentError) }
     it { expect { subject.indent_text = 'sample' }.to change { subject.indent_text }.to('sample') }
 
-    context 'write indent if first charactor of line' do
+    context 'not write indent if first charactor of line' do
       before do
         @context.indent_text = 'test>>'
         @source = 'this is text.'
         @source2 = "new line."
-        @result = 'test>>' + @source
+        @result = @source
         @result2 = @result + @source
-        @result3 = "#{@result2}\ntest>>#{@source2}"
+        @result3 = "#{@result2}\n#{@source2}"
       end
       it { expect { subject.write(@source) }.to change { get_string }.to(@result) }
       it { expect { subject.write(@source); subject.write(@source) }.to change { get_string }.to(@result2) }
       it { expect { subject.write(@source); subject.write(@source); subject.write("\n"); subject.write(@source2) }.to change { get_string }.to(@result3) }
+
+      context '2nd line is write indent if first charactor of line' do
+        before do
+          @context.indent_text = 'test>>'
+          @context2 = @formatter.send(:make_context, @context)
+          @source = 'this is text.'
+          @source2 = "new line."
+          @result = 'test>>' + @source
+          @result2 = @result + @source
+          @result3 = "#{@result2}\ntest>>#{@source2}"
+        end
+        subject { @context2 }
+
+        it { expect { subject.write(@source) }.to change { get_string }.to(@result) }
+        it { expect { subject.write(@source); subject.write(@source) }.to change { get_string }.to(@result2) }
+        it { expect { subject.write(@source); subject.write(@source); subject.write("\n"); subject.write(@source2) }.to change { get_string }.to(@result3) }
+      end
     end
 
     context 'write multi-indent if first charactor of line' do
       before do
         @context.indent_text = 'test>>'
         @context2 = @formatter.send(:make_context, @context)
+        @context2.indent_text = 're: '
         @context3 = @formatter.send(:make_context, @context2)
-        @context3.indent_text = 're: '
+        @context3.indent_text = 'not use'
         @source = 'this is text.'
         @source2 = "new line."
         @result = 'test>>re: ' + @source
