@@ -29,6 +29,8 @@ module KtouthBrand::ST2
               end
             end
             def set_writer(io, flag = true)
+              raise ArgumentError, 'io is not respond to :write' unless io.respond_to?(:write)
+              raise ArgumentError, 'writer is already setted' if @writer
               @writer, @flag = io, flag
             end
             
@@ -124,5 +126,7 @@ module KtouthBrand::ST2
     end
 
     def write_escape(text = nil); write(@formatter.send(:escape, text)) end
+
+    def set_child_writer(writer); @child_writer.set_writer(writer) end
   end
 end

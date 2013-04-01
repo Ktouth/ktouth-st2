@@ -405,4 +405,99 @@ describe "KtouthBrand::ST2::NodeFormatterContext" do
       it { expect { subject.write(@source); subject.write(@source); subject.write("\n"); @context.indent_text = '// '; subject.write(@source2) }.to change { get_string }.from("").to(@result3) }
     end
   end
+
+  describe "#set_child_writer" do
+    include_context 'make node-context'
+    before :all do
+      @dummy_io = Object.new
+      class <<@dummy_io
+        def write(text = nil); end
+      end
+    end
+    subject { @context }
+
+    def get_string(io = nil); (io || @formatter).string.dup end
+    
+    it { should be_respond_to(:set_child_writer) }
+
+    it { expect { subject.set_child_writer }.to raise_error }
+    it { expect { subject.set_child_writer(156132) }.to raise_error }
+    it { expect { subject.set_child_writer(nil) }.to raise_error }
+    it { expect { subject.set_child_writer(:www) }.to raise_error }
+    it { expect { subject.set_child_writer('test') }.to raise_error }
+    it { expect { subject.set_child_writer(StringIO.new) }.to_not raise_error }
+    it { expect { subject.set_child_writer(@dummy_io) }.to_not raise_error }
+    it { expect { subject.set_child_writer(@dummy_io); subject.set_child_writer(@dummy_io) }.to raise_error }
+    it { expect { subject.set_child_writer(@dummy_io); subject.set_child_writer(StringIO.new) }.to raise_error }
+
+    context 'when setted child-writer, writed text is select writer' do
+      before do
+        @context2 = @formatter.send(:make_context, @context)
+        @context3 = @formatter.send(:make_context, @context2)
+        @context4 = @formatter.send(:make_context, @context3)
+        @context.indent_text = '>> '
+        @context2.indent_text = 're: '
+        @context4.indent_text = '<dummy>'
+
+        @text = 'this is sample.'
+        @text2 = 'dummy text is Ok!'
+        @this = 'message[%d:%s]'
+        
+        @writer = StringIO.new
+      end
+      def write_messages
+        @context.write @this % [1, @text]
+        @context2.write @text2 + "\n" + @this % [2, '']
+        @context3.write @text + "\n" + @this % [3, @text]
+        @context4.write @this % [4, @text2]
+      end
+
+      context '[not set writer]' do
+        before do
+          @result = "#{@this % [1, @text]}#{@text2}\n>> #{@this % [2, '']}#{@text}\n>> re: #{@this % [3, @text]}#{@this % [4, @text2]}"
+        end
+        it { expect { write_messages }.to change { get_string }.to(@result) }
+        it { expect { write_messages }.to_not change { get_string(@writer).to_s } }
+      end
+
+      context '[set writer for @context]' do
+        before do
+          @result = "#{@this % [1, @text]}"
+          @result_writer = ">> #{@text2}\n>> #{@this % [2, '']}#{@text}\n>> re: #{@this % [3, @text]}#{@this % [4, @text2]}"
+          @context.set_child_writer(@writer)
+        end
+        it { expect { write_messages }.to change { get_string }.to(@result) }
+        it { expect { write_messages }.to change { get_string(@writer).to_s }.to(@result_writer) }
+      end
+
+      context '[set writer for @context2]' do
+        before do
+          @result = "#{@this % [1, @text]}#{@text2}\n>> #{@this % [2, '']}"
+          @result_writer = "re: #{@text}\nre: #{@this % [3, @text]}#{@this % [4, @text2]}"
+          @context2.set_child_writer(@writer)
+        end
+        it { expect { write_messages }.to change { get_string }.to(@result) }
+        it { expect { write_messages }.to change { get_string(@writer).to_s }.to(@result_writer) }
+      end
+
+      context '[set writer for @context3]' do
+        before do
+          @result = "#{@this % [1, @text]}#{@text2}\n>> #{@this % [2, '']}#{@text}\n>> re: #{@this % [3, @text]}"
+          @result_writer = "#{@this % [4, @text2]}"
+          @context3.set_child_writer(@writer)
+        end
+        it { expect { write_messages }.to change { get_string }.to(@result) }
+        it { expect { write_messages }.to change { get_string(@writer).to_s }.to(@result_writer) }
+      end
+
+      context '[set writer for @context4]' do
+        before do
+          @result = "#{@this % [1, @text]}#{@text2}\n>> #{@this % [2, '']}#{@text}\n>> re: #{@this % [3, @text]}#{@this % [4, @text2]}"
+          @context4.set_child_writer(@writer)
+        end
+        it { expect { write_messages }.to change { get_string }.to(@result) }
+        it { expect { write_messages }.to_not change { get_string(@writer).to_s } }
+      end
+    end
+  end
 end
