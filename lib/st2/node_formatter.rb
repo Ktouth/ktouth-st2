@@ -5,6 +5,12 @@ module KtouthBrand::ST2
   class NodeFormatter
     class <<self
       private :new
+
+      def inherited(klass)
+        class <<klass
+          public :new
+        end
+      end
     end
     extend Forwardable
 
