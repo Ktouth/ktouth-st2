@@ -14,5 +14,9 @@ module KtouthBrand::ST2
     def make_error_message(message)
       ErrorMessage.new(message, :line => __source_line__, :column => __source_column__)
     end
+
+    def format_for_source(context)
+      raise NotImplementedError, 'class"%s" is not impremented format for "%s"' % [self.class.name, SourceFormatter]
+    end
   end
 end

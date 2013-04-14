@@ -51,4 +51,15 @@ describe "KtouthBrand::ST2::Node" do
     it { call(@nodeB, 'test').to_s == '-:5:test' }
     it { call(@nodeC, 'test').to_s == '153:-:test' }
   end
+
+  describe '(#format_for_source)' do
+    before do
+      @node = KtouthBrand::ST2::Node.send :new
+    end
+    subject { @node }
+    
+    it { should_not be_respond_to(:format_for_source) }
+    it { should be_respond_to(:format_for_source, true) }
+    it { expect { KtouthBrand::ST2::SourceFormatter.new.format(subject) }.to raise_error(NotImplementedError) }
+  end
 end
