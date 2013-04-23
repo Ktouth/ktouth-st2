@@ -2,6 +2,26 @@ module KtouthBrand::ST2
   class Node
     class <<self
       private :new
+
+      def InlineNode
+        Class.new(self).tap do |t|
+          class <<t
+            public :new
+            def inherited(klass)
+              class <<klass
+                extend Node::Extend
+              end
+            end
+          end
+          t.module_eval do
+            def __inline_node?; true end
+          end
+        end
+      end
+
+    end
+    module Extend
+      
     end
 
     def initialize

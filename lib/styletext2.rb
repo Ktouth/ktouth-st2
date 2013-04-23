@@ -11,3 +11,5 @@ require 'readonly_collection'
  :source_formatter,
  :node,
 ].each {|x| require "st2/#{x}" }
+
+[:text].each {|x| require "st2/node/#{x}" }
