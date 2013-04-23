@@ -28,6 +28,16 @@ describe "KtouthBrand::ST2::Node" do
     it { subject.__source_column__.should be_nil }
     it { expect { subject.__source_column__ = 122 }.to change { subject.__source_column__ }.to(122) }
   end
+
+  describe '#__inline_node?' do
+    before do
+      @node = KtouthBrand::ST2::Node.send :new
+    end
+    subject { @node }
+
+    it { should be_respond_to(:__inline_node?) }
+    it { subject.__inline_node?.should be_false }
+  end
   
   describe '(#make_error_message)' do
     def mk(line, column)

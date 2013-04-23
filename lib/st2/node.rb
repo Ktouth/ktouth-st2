@@ -9,6 +9,8 @@ module KtouthBrand::ST2
     end
     attr_accessor :__source_line__, :__source_column__
 
+    def __inline_node?; false end
+
     private
 
     def make_error_message(message)
