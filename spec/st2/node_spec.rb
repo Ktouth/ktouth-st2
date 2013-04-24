@@ -75,8 +75,6 @@ describe "KtouthBrand::ST2::Node" do
 end
 
 describe "KtouthBrand::ST2::Node::Inline" do
-  before do
-  end
   subject { KtouthBrand::ST2::Node::Inline }
 
   it { should be_a(Class) }
@@ -91,6 +89,30 @@ describe "KtouthBrand::ST2::Node::Inline" do
 
     it { should be_respond_to(:__inline_node?) }
     it { subject.__inline_node?.should be_true }
+  end
+
+  describe '#pre_blank?' do
+    before do
+      @inline = KtouthBrand::ST2::Node::Inline.send :new
+    end
+    subject { @inline }
+
+    it { should be_respond_to(:pre_blank?) }
+    it { subject.pre_blank?.should be_false }
+  end
+
+  describe '#pre_blank=' do
+    before do
+      @inline = KtouthBrand::ST2::Node::Inline.send :new
+    end
+    subject { @inline }
+    it { should be_respond_to(:pre_blank=) }
+
+    it { expect { subject.pre_blank = true }.to change { subject.pre_blank? }.to(true) }
+    it { expect { subject.pre_blank = false }.to_not change { subject.pre_blank? } }
+    it { expect { subject.pre_blank = ' ' }.to raise_error(ArgumentError) }
+    it { expect { subject.pre_blank = :true }.to raise_error(ArgumentError) }
+    it { expect { subject.pre_blank = nil }.to raise_error(ArgumentError) }
   end
 
   context 'derived from Inline, it can respond to Class.new' do

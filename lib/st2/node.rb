@@ -33,7 +33,17 @@ module KtouthBrand::ST2
           end
         end
       end
+
+      def initialize
+        @pre_blank = false
+      end
+
       def __inline_node?; true end
+      def pre_blank?; @pre_blank end
+      def pre_blank=(val)
+        raise ArgumentError, 'val is not true or false' unless val == !!val
+        @pre_blank = val
+      end
     end
   end
 end
