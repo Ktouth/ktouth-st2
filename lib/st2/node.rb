@@ -35,6 +35,7 @@ module KtouthBrand::ST2
       end
 
       def initialize
+        super
         @pre_blank = false
       end
 
