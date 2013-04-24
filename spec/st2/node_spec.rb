@@ -73,3 +73,31 @@ describe "KtouthBrand::ST2::Node" do
     it { expect { KtouthBrand::ST2::SourceFormatter.new.format(subject) }.to raise_error(NotImplementedError) }
   end
 end
+
+describe "KtouthBrand::ST2::Node::Inline" do
+  before do
+  end
+  subject { KtouthBrand::ST2::Node::Inline }
+
+  it { should be_a(Class) }
+  it { should < KtouthBrand::ST2::Node }
+  it { should_not be_respond_to(:new) }  
+
+  describe '#__inline_node?' do
+    before do
+      @inline = KtouthBrand::ST2::Node::Inline.send :new
+    end
+    subject { @inline }
+
+    it { should be_respond_to(:__inline_node?) }
+    it { subject.__inline_node?.should be_true }
+  end
+
+  context 'derived from Inline, it can respond to Class.new' do
+    before do
+      @klass = Class.new(KtouthBrand::ST2::Node::Inline)
+    end
+    subject { @klass }
+    it { should be_respond_to(:new) }
+  end
+end

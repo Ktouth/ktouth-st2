@@ -22,5 +22,5 @@ end
 
 shared_context "inline-node class specset" do
   include_context "node class specset"
-  it { @valid_node.__inline_node?.should be_true }
+  it { @node_type.should < KtouthBrand::ST2::Node::Inline }
 end
