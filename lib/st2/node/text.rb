@@ -20,7 +20,11 @@ module KtouthBrand::ST2
       @text = val
     end
 
-    def each_error_message; end
+    def each_error_message
+      return self.to_enum(:each_error_message) unless block_given?
+      yield make_error_message('text is null or empty string.') if text.nil? || text.empty?
+      yield make_error_message('text is contain any blanks.') if text =~ /\s/
+    end
     def format_for_source(context)
       
     end

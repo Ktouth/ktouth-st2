@@ -9,6 +9,7 @@ shared_context "node class specset" do
 
   it { @valid_node.should be_a(@node_type) }
   it { @valid_node.should be_respond_to(:each_error_message) }
+  it { @valid_node.each_error_message.should be_a(Enumerator) }
 
   context 'validate is true' do
     subject { KtouthBrand::ST2::NodeValidator.new }

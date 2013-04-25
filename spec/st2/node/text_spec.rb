@@ -4,7 +4,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../../node_specset')
 describe "KtouthBrand::ST2::Text" do
   before :all do
     @node_type = KtouthBrand::ST2::Text
-    @valid_node = @node_type.new
+    @valid_node = @node_type.new('valid')
   end
   include_context "inline-node class specset"
 
@@ -55,5 +55,19 @@ describe "KtouthBrand::ST2::Text" do
     it { expect { subject.text = 'space ' }.to_not raise_error(ArgumentError) }
     it { expect { subject.text = "space ok" }.to_not raise_error(ArgumentError) }
     it { expect { subject.text = "space\tok\n" }.to_not raise_error(ArgumentError) }
+  end
+
+  describe '#each_error_message' do
+    def make_and_check(text)
+      node = @node_type.new(text)
+      KtouthBrand::ST2::NodeValidator.new.tap {|t| t.validate(node) }
+    end
+
+    it { make_and_check('valid').valid?.should be_true }
+    it { make_and_check(nil).valid?.should be_false }
+    it { make_and_check('').valid?.should be_false }
+    it { make_and_check('  invalid').valid?.should be_false }
+    it { make_and_check('invalid\t  ').valid?.should be_false }
+    it { make_and_check("unknown\nvalid").valid?.should be_false }
   end
 end
