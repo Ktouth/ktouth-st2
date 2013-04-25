@@ -21,6 +21,10 @@ module KtouthBrand::ST2
       raise NotImplementedError, 'class"%s" is not impremented format for "%s"' % [self.class.name, SourceFormatter]
     end
 
+    def preset_parameters(params)
+      params.each {|key, value| send("#{key}=", value) }
+    end
+
     module Extend
       
     end

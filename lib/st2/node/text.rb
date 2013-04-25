@@ -1,8 +1,17 @@
 module KtouthBrand::ST2
   class Text < Node::Inline
-    def initialize
-      super
-      @text = nil
+    def initialize(text = nil, params = nil)
+      super()
+      if text.is_a?(Hash)
+        raise ArgumentError, 'double parameter setted' if params
+        preset_parameters(text)
+      elsif params.is_a?(Hash)
+        preset_parameters(params.merge(:text => text))
+      elsif params.nil?
+        self.text = text
+      else
+        raise ArgumentError, 'params is not Hash'
+      end
     end
     attr_reader :text
 
