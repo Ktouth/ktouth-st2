@@ -70,4 +70,72 @@ describe "KtouthBrand::ST2::Text" do
     it { make_and_check('invalid\t  ').valid?.should be_false }
     it { make_and_check("unknown\nvalid").valid?.should be_false }
   end
+
+  describe '#format_for_source' do
+    before :all do
+      @block_chars = ['*) ', '+) ', '>> ', '---', '=== ', '//', '; ',  ]
+      @block_chars_result = @block_chars.map {|x| x.sub(/ /, '\\ ') }
+    end
+    def make_and_format(*args)
+      node = @node_type.new(*args)
+      KtouthBrand::ST2::SourceFormatter.new.tap {|x| x.format(node) }.string
+    end
+
+    it { make_and_format('test').should == 'test' }
+    it { make_and_format('valid', :pre_blank => true).should == ' valid' }
+    it { make_and_format(nil).should == '' }
+    it { make_and_format(nil, :pre_blank => true).should == ' ' }
+    it { make_and_format('').should == '' }
+    it { make_and_format('', :pre_blank => true).should == ' ' }
+    it { make_and_format('   ').should == "\\ \\ \\ " }
+    it { make_and_format('     ', :pre_blank => true).should == " \\ \\ \\ \\ \\ " }
+    it { make_and_format('{valid}').should == "\\{valid\\}" }
+    it { make_and_format('{valid}', :pre_blank => true).should == " \\{valid\\}" }
+
+    context 'block characters in not-first of line is no-eacaped.' do
+      def make_and_format(*args)
+        node = @node_type.new(*args)
+        formatter = KtouthBrand::ST2::SourceFormatter.new
+        class <<formatter
+          alias orig_make_context make_context
+        end
+        formatter.should_receive(:make_context).with(any_args()).once.and_return do |*params|
+          formatter.send(:orig_make_context, *params).tap do |orig|
+            orig.should_receive(:before).with(no_args()).any_number_of_times.and_return( @node_type.new('valid') )
+          end
+        end
+        formatter.format(node)
+        formatter.string
+      end
+      before do
+        @texts = @block_chars.map {|x| make_and_format(x) }
+        @texts_with_blank = @block_chars.map {|x| make_and_format(x, :pre_blank => true) }
+      end
+      it { @texts.should == @block_chars_result }
+      it { @texts_with_blank.should == @block_chars_result.map {|x| " #{x}" } }
+    end
+
+    context 'block characters in first of line is eacaped.' do
+      def make_and_format(*args)
+        node = @node_type.new(*args)
+        formatter = KtouthBrand::ST2::SourceFormatter.new
+        class <<formatter
+          alias orig_make_context make_context
+        end
+        formatter.should_receive(:make_context).with(any_args()).once.and_return do |*params|
+          formatter.send(:orig_make_context, *params).tap do |orig|
+            orig.should_receive(:before).with(no_args()).any_number_of_times.and_return( nil )
+          end
+        end
+        formatter.format(node)
+        formatter.string
+      end
+      before do
+        @texts = @block_chars.map {|x| make_and_format(x) }
+        @texts_with_blank = @block_chars.map {|x| make_and_format(x, :pre_blank => true) }
+      end
+      it { @texts.should == @block_chars_result.map {|x| "\\#{x}" } }
+      it { @texts_with_blank.should == @block_chars_result.map {|x| " #{x}" } }
+    end
+  end  
 end

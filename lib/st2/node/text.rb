@@ -25,8 +25,16 @@ module KtouthBrand::ST2
       yield make_error_message('text is null or empty string.') if text.nil? || text.empty?
       yield make_error_message('text is contain any blanks.') if text =~ /\s/
     end
+
+    private
+
     def format_for_source(context)
-      
+      if pre_blank?
+        context.write ' '
+      elsif context.before.nil? && (text =~ /\A(?:[\*\+]\) |>> |---|=== |\/\/|; )/)
+        context.write '\\'
+      end
+      context.write_escape text
     end
   end
 end
