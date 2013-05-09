@@ -31,7 +31,7 @@ module KtouthBrand::ST2
     def format_for_source(context)
       if pre_blank?
         context.write ' '
-      elsif context.before.nil? && (text =~ /\A(?:[\*\+]\) |>> |---|=== |\/\/|; )/)
+      elsif (context.before.nil? || context.before.is_a?(NewLine)) && (text =~ /\A(?:[\*\+]\) |>> |---|=== |\/\/|; )/)
         context.write '\\'
       end
       context.write_escape text
