@@ -40,7 +40,44 @@ describe "KtouthBrand::ST2::Paragraph" do
     it { subject.add_inline(*@children).should == subject }
     it { expect { subject.add_inline(*@children) }.to change { subject.inlines.size }.from(0).to(@children.size) }
     it { expect { subject.add_inline(*@children) }.to change { subject.inlines.to_a }.from([]).to(@children) }
+
+    context 'is not add already exist item' do
+      before do
+        @p.add_inline(*@children)
+      end
+      it { expect { subject.add_inline(@children[-1]) }.to_not change { subject.inlines.to_a } }
+    end
+    context 'is not add duplicated item' do
+      before do
+        @duplicated = [0, 1, 1, 2, 3, 3, 3].map {|x| @children[x] }
+      end
+      it { expect { subject.add_inline(*@duplicated) }.to change { subject.inlines.to_a }.to(@children) }
+    end
   end  
+
+  describe '#remove_inline' do
+    before do
+      @children = [KtouthBrand::ST2::Text.new('test'), KtouthBrand::ST2::NewLine.new, KtouthBrand::ST2::Text.new('valid'), KtouthBrand::ST2::Text.new('ok!!', :pre_blank => true), ]
+      @p = @node_type.new.add_inline(*@children)
+    end
+    subject { @p }
+
+    it { should be_respond_to(:remove_inline) }
+    it { expect { subject.remove_inline }.to raise_error(ArgumentError) }
+    it { expect { subject.remove_inline(@children.first) }.to_not raise_error }
+    it { expect { subject.remove_inline(*@children) }.to raise_error }
+    it { expect { subject.remove_inline(nil) }.to raise_error }
+    it { expect { subject.remove_inline(:abort) }.to raise_error }
+    it { expect { subject.remove_inline('nil') }.to raise_error }
+    it { expect { subject.remove_inline(123589) }.to raise_error }
+    it { expect { subject.remove_inline(KtouthBrand::ST2::Paragraph.new) }.to raise_error }
+    it { expect { subject.remove_inline(KtouthBrand::ST2::Node::Inline.send(:new)) }.to raise_error }
+    it { expect { subject.remove_inline(KtouthBrand::ST2::Text.new('not found')) }.to_not raise_error }
+
+    it { subject.remove_inline(@children.first).should == subject }
+    it { expect { subject.remove_inline(@children[2]) }.to change { subject.inlines.size }.from(@children.size).by(-1) }
+    it { expect { subject.remove_inline(@children[1]) }.to change { subject.inlines.to_a }.from(@children).to([@children.first] + @children[2..-1]) }
+  end
   
   describe '#each_error_message' do
     def make_and_check(pre_blank = false)
