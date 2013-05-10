@@ -18,6 +18,11 @@ module KtouthBrand::ST2
       self
     end
 
+    def each_node(&block)
+      return self.to_enum(:each_node) unless block
+      inlines.each(&block)
+    end
+
     def each_error_message
       return self.to_enum(:each_error_message) unless block_given?
     end

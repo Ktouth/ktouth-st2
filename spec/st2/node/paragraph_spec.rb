@@ -4,7 +4,12 @@ require File.expand_path(File.dirname(__FILE__) + '/../../node_specset')
 describe "KtouthBrand::ST2::Paragraph" do
   before :all do
     @node_type = KtouthBrand::ST2::Paragraph
-    @valid_node = @node_type.new
+    @valid_node = @node_type.new.add_inline(
+      KtouthBrand::ST2::Text.new('test'),
+      KtouthBrand::ST2::NewLine.new,
+      KtouthBrand::ST2::Text.new('valid'),
+      KtouthBrand::ST2::Text.new('ok!!', :pre_blank => true)
+    )
   end
   include_context "block-node class specset"
 
@@ -77,6 +82,21 @@ describe "KtouthBrand::ST2::Paragraph" do
     it { subject.remove_inline(@children.first).should == subject }
     it { expect { subject.remove_inline(@children[2]) }.to change { subject.inlines.size }.from(@children.size).by(-1) }
     it { expect { subject.remove_inline(@children[1]) }.to change { subject.inlines.to_a }.from(@children).to([@children.first] + @children[2..-1]) }
+  end
+
+  describe '#each_node' do
+    subject { @valid_node }
+    it { should be_respond_to(:each_node) }
+    it { subject.each_node.should be_a(Enumerator) }
+    it { subject.each_node.to_a.should == subject.inlines.to_a }
+    
+    context 'is received block' do
+      before do
+        @result = []
+        subject.each_node {|x| @result << x }
+      end
+      it { @result.should == subject.inlines.to_a }
+    end
   end
   
   describe '#each_error_message' do
