@@ -5,6 +5,13 @@ module KtouthBrand::ST2
     end
     attr_reader :inlines
 
+    def add_inline(first_node, *nodes)
+      nodes.unshift first_node
+      raise ArgumentError, 'nodes contained not Node instance.' unless nodes.all? {|x| (x.class < Node::Inline) }
+      @inlines_impl.concat nodes
+      self
+    end
+
     def each_error_message
       return self.to_enum(:each_error_message) unless block_given?
     end

@@ -18,6 +18,29 @@ describe "KtouthBrand::ST2::Paragraph" do
     it { subject.inlines.should be_a(KtouthBrand::ReadOnlyCollection) }
     it { subject.inlines.empty?.should be_true }
   end
+
+  describe '#add_inline' do
+    before do
+      @p = @node_type.new
+      @children = [KtouthBrand::ST2::Text.new('test'), KtouthBrand::ST2::NewLine.new, KtouthBrand::ST2::Text.new('valid'), KtouthBrand::ST2::Text.new('ok!!', :pre_blank => true), ]
+    end
+    subject { @p }
+
+    it { should be_respond_to(:add_inline) }
+    it { expect { subject.add_inline }.to raise_error(ArgumentError) }
+    it { expect { subject.add_inline(@children.first) }.to_not raise_error }
+    it { expect { subject.add_inline(*@children) }.to_not raise_error }
+    it { expect { subject.add_inline(nil) }.to raise_error }
+    it { expect { subject.add_inline(:abort) }.to raise_error }
+    it { expect { subject.add_inline('nil') }.to raise_error }
+    it { expect { subject.add_inline(123589) }.to raise_error }
+    it { expect { subject.add_inline(@children.last, KtouthBrand::ST2::Paragraph.new) }.to raise_error }
+    it { expect { subject.add_inline(*@children[0..2], KtouthBrand::ST2::Node::Inline.send(:new), *@children.last) }.to raise_error }
+
+    it { subject.add_inline(*@children).should == subject }
+    it { expect { subject.add_inline(*@children) }.to change { subject.inlines.size }.from(0).to(@children.size) }
+    it { expect { subject.add_inline(*@children) }.to change { subject.inlines.to_a }.from([]).to(@children) }
+  end  
   
   describe '#each_error_message' do
     def make_and_check(pre_blank = false)
