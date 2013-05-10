@@ -100,13 +100,17 @@ describe "KtouthBrand::ST2::Paragraph" do
   end
   
   describe '#each_error_message' do
-    def make_and_check(pre_blank = false)
-      node = @node_type.new.tap {|x| x.pre_blank = pre_blank }
+    def make_and_check(*args)
+      node = @node_type.new
+      node.add_inline(*args) unless args.empty?
       KtouthBrand::ST2::NodeValidator.new.tap {|t| t.validate(node) }
     end
 
-    it #{ make_and_check().valid?.should be_true }
-    it #{ make_and_check(true).valid?.should be_true }
+    it { make_and_check(KtouthBrand::ST2::Text.new('test')).valid?.should be_true }
+    it { make_and_check().valid?.should be_false }
+    it { make_and_check(KtouthBrand::ST2::Text.new('test'), KtouthBrand::ST2::NewLine.new).valid?.should be_false }
+    it { make_and_check(KtouthBrand::ST2::NewLine.new, KtouthBrand::ST2::Text.new('test')).valid?.should be_false }
+    it { make_and_check(KtouthBrand::ST2::NewLine.new.tap {|x| x.pre_blank = true }, KtouthBrand::ST2::Text.new('test')).valid?.should be_true }
   end
 
   describe '#format_for_source' do

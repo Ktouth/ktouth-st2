@@ -25,6 +25,8 @@ module KtouthBrand::ST2
 
     def each_error_message
       return self.to_enum(:each_error_message) unless block_given?
+      yield make_error_message("inlines is empty.") if @inlines_impl.empty?
+      yield make_error_message("invalid new-line charactor.") if @inlines_impl.last.is_a?(NewLine) || (@inlines_impl.first.is_a?(NewLine) && !@inlines_impl.first.pre_blank?)
     end
 
     private
