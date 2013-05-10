@@ -12,4 +12,7 @@ require 'readonly_collection'
  :node,
 ].each {|x| require "st2/#{x}" }
 
-[:text, :newline].each {|x| require "st2/node/#{x}" }
+[
+  :text, :newline,
+  :paragraph,
+].each {|x| require "st2/node/#{x}" }
