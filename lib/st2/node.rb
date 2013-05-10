@@ -10,6 +10,7 @@ module KtouthBrand::ST2
     attr_accessor :__source_line__, :__source_column__
 
     def __inline_node?; false end
+    def __block_node?; false end
 
     private
 
@@ -28,6 +29,7 @@ module KtouthBrand::ST2
     module Extend
       
     end
+
     class Inline < Node
       class <<self
         def inherited(klass)
@@ -49,6 +51,19 @@ module KtouthBrand::ST2
         raise ArgumentError, 'val is not true or false' unless val == !!val
         @pre_blank = val
       end
+    end
+
+    class Block < Node
+      class <<self
+        def inherited(klass)
+          class <<klass
+            public :new
+            extend Node::Extend
+          end
+        end
+      end
+
+      def __block_node?; true end
     end
   end
 end

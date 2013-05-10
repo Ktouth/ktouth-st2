@@ -38,6 +38,16 @@ describe "KtouthBrand::ST2::Node" do
     it { should be_respond_to(:__inline_node?) }
     it { subject.__inline_node?.should be_false }
   end
+
+  describe '#__block_node?' do
+    before do
+      @node = KtouthBrand::ST2::Node.send :new
+    end
+    subject { @node }
+
+    it { should be_respond_to(:__block_node?) }
+    it { subject.__block_node?.should be_false }
+  end
   
   describe '(#make_error_message)' do
     def mk(line, column)
@@ -118,6 +128,32 @@ describe "KtouthBrand::ST2::Node::Inline" do
   context 'derived from Inline, it can respond to Class.new' do
     before do
       @klass = Class.new(KtouthBrand::ST2::Node::Inline)
+    end
+    subject { @klass }
+    it { should be_respond_to(:new) }
+  end
+end
+
+describe "KtouthBrand::ST2::Node::Block" do
+  subject { KtouthBrand::ST2::Node::Block }
+
+  it { should be_a(Class) }
+  it { should < KtouthBrand::ST2::Node }
+  it { should_not be_respond_to(:new) }  
+
+  describe '#__block_node?' do
+    before do
+      @block = KtouthBrand::ST2::Node::Block.send :new
+    end
+    subject { @block }
+
+    it { should be_respond_to(:__block_node?) }
+    it { subject.__block_node?.should be_true }
+  end
+
+  context 'derived from Inline, it can respond to Class.new' do
+    before do
+      @klass = Class.new(KtouthBrand::ST2::Node::Block)
     end
     subject { @klass }
     it { should be_respond_to(:new) }

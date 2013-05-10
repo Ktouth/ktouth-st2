@@ -27,3 +27,8 @@ shared_context "inline-node class specset" do
   include_context "node class specset"
   it { @node_type.should < KtouthBrand::ST2::Node::Inline }
 end
+
+shared_context "block-node class specset" do
+  include_context "node class specset"
+  it { @node_type.should < KtouthBrand::ST2::Node::Inline }
+end
