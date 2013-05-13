@@ -2,6 +2,20 @@ module KtouthBrand::ST2
   class Node
     class <<self
       private :new
+
+      def each_tree(node, *nodes, &block)
+        nodes.unshift node
+        raise ArgumentError, 'nodes is not all node-instance.' unless nodes.all? {|x| x.is_a?(Node) }
+        return self.to_enum(:each_tree, *nodes) unless block
+        each_tree_as(nodes, &block)
+      end
+      def each_tree_as(nodes, &block)
+        nodes.each do |node|
+          block.call(node)
+          each_tree_as(node.to_enum(:each_node), &block) if node.respond_to?(:each_node)
+        end
+      end
+      private :each_tree_as
     end
 
     def initialize

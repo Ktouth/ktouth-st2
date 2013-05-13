@@ -5,6 +5,34 @@ describe "KtouthBrand::ST2::Node" do
   it { should be_instance_of(Class) }
   it { should_not be_respond_to(:new) }
 
+  describe '.each_tree' do
+    before :all do
+      @array = [
+        KtouthBrand::ST2::Paragraph.new.add_inline(
+          KtouthBrand::ST2::Text.new('sample'),
+          KtouthBrand::ST2::Text.new('text', :pre_blank => true)
+        ),
+        KtouthBrand::ST2::Paragraph.new.add_inline(
+          KtouthBrand::ST2::Text.new('already'),
+          KtouthBrand::ST2::NewLine.new,
+          KtouthBrand::ST2::Text.new('exist'),
+          KtouthBrand::ST2::Text.new('line-text.', :pre_blank => true)
+        ),
+      ]
+      @flatten = @array.map {|x| [x] + x.inlines.to_a }.flatten
+    end
+    it { should be_respond_to(:each_tree) }
+
+    it { expect { subject.each_tree }.to raise_error }
+    it { expect { subject.each_tree(1553) }.to raise_error }
+    it { expect { subject.each_tree(nil) }.to raise_error }
+    it { expect { subject.each_tree('test') }.to raise_error }
+    it { subject.each_tree(@array[0]).should be_a(Enumerator) }
+    it { subject.each_tree(@array[0]).to_a.should == @flatten[0..2] }
+    it { subject.each_tree(*@array).to_a.should == @flatten }
+    it { subject.each_tree(*@array) {|x| :symbol }.should == @array }
+  end
+
   describe '#__source_line__' do
     before do
       @node = KtouthBrand::ST2::Node.send :new
