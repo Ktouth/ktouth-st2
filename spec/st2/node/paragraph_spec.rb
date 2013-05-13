@@ -115,12 +115,54 @@ describe "KtouthBrand::ST2::Paragraph" do
   end
 
   describe '#format_for_source' do
-    def make_and_format(pre_blank = false)
-      node = @node_type.new.tap {|x| x.pre_blank = pre_blank }
+    def make_and_format(*args)
+      node = @node_type.new
+      node.add_inline(*args) unless args.empty?
       KtouthBrand::ST2::SourceFormatter.new.tap {|x| x.format(node) }.string
     end
 
-    it #{ make_and_format().should == "\n" }
-    it #{ make_and_format(true).should == " \n" }
-  end  
+    it { KtouthBrand::ST2::SourceFormatter.new.tap {|x| x.format(@valid_node) }.string.should == "test\nvalid ok!!\n" }
+    it { make_and_format().should == "" }
+    it { make_and_format(KtouthBrand::ST2::Text.new('test')).should == "test\n" }
+    it { make_and_format(KtouthBrand::ST2::Text.new('first-line', :pre_blank => true), KtouthBrand::ST2::NewLine.new, KtouthBrand::ST2::Text.new('test'), KtouthBrand::ST2::Text.new('second-line', :pre_blank => true)).should == " first-line\ntest second-line\n" }
+
+    context 'is write blank-space when before-node is Paragraph or other.' do
+      def make_and_format(*args)
+        node = @node_type.new
+        node.add_inline(*args) unless args.empty?
+        before = yield
+
+        dummy_group = Class.new(KtouthBrand::ST2::Node).send(:new)
+        k = class <<dummy_group
+          def format_for_source(context); end
+          self
+        end
+        k.send(:define_method, :each_node) do |&block|
+          [before, node].each(&block)
+        end
+
+        formatter = KtouthBrand::ST2::SourceFormatter.new
+        formatter.format(dummy_group)
+        formatter.string
+      end
+      before :all do
+        @valid_texts = "test\nvalid ok!!"
+        @paragraph_texts = "first-line\ntest second-line"
+        @dummy_node = KtouthBrand::ST2::Node::Block.send(:new).tap do |t|
+          class <<t
+            def format_for_source(context)
+              context.write("---dummy---\n")
+            end
+          end
+        end
+      end
+      before do
+        @array = [KtouthBrand::ST2::Text.new('first-line'), KtouthBrand::ST2::NewLine.new, KtouthBrand::ST2::Text.new('test'), KtouthBrand::ST2::Text.new('second-line', :pre_blank => true)]
+      end
+      it { @array.first.pre_blank = true; make_and_format(*@array) { @valid_node }.should == "#{@valid_texts}\n #{@paragraph_texts}\n" }
+      it { @array.first.pre_blank = false; make_and_format(*@array) { @valid_node }.should == "#{@valid_texts}\n\n#{@paragraph_texts}\n" }
+      it { @array.first.pre_blank = true; make_and_format(*@array) { @dummy_node }.should == "---dummy---\n #{@paragraph_texts}\n" }
+      it { @array.first.pre_blank = false; make_and_format(*@array) { @dummy_node }.should == "---dummy---\n#{@paragraph_texts}\n" }
+    end
+  end
 end

@@ -40,6 +40,12 @@ module KtouthBrand::ST2
     private
 
     def format_for_source(context)
+      context.write "\n" if context.before.is_a?(Paragraph) && !@inlines_impl.empty? && !@inlines_impl.first.pre_blank?
+      unless @inlines_impl.empty?
+        context.set_footer_proc do |c|
+          c.write "\n"
+        end
+      end
     end
   end
 end
