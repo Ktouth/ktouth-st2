@@ -79,7 +79,9 @@ module KtouthBrand::ST2
         end
         count += 1
       end
-      if count == 1
+      case count
+      when 0;
+      when 1
         call_context(context, nil, first, nil)
       else
         call_context(context, nil, first, second) if count == 2

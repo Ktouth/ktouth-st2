@@ -249,5 +249,29 @@ describe "KtouthBrand::ST2::NodeFormatter" do
       it { get(:after).should == @tree_after_indexes }
       it { get_parent.should == @tree_parent_indexes }
     end
+
+    context 'is through empty nodes' do
+      include_context 'tree nodes'
+      def get(sym)
+        array = []
+        @nodes.each do |n|
+          assign_format_for(n, :dummy) {|c| k = c.send(sym); array.push(k.nil? ? nil : k.id) }
+        end
+        subject.format(@nodes[0])
+        array
+      end
+      before do
+        class <<@nodes[0]
+          def each_node(&block)
+            return self.to_enum(:each_node) unless block
+            [].each(&block)
+          end
+        end
+      end
+      it { get(:root).should == [0] }
+      it { get(:current).should == [0] }
+      it { get(:before).should == [nil] }
+      it { get(:after).should == [nil] }
+    end
   end
 end
