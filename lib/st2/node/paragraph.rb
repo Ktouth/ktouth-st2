@@ -25,8 +25,16 @@ module KtouthBrand::ST2
 
     def each_error_message
       return self.to_enum(:each_error_message) unless block_given?
-      yield make_error_message("inlines is empty.") if @inlines_impl.empty?
-      yield make_error_message("invalid new-line charactor.") if @inlines_impl.last.is_a?(NewLine) || (@inlines_impl.first.is_a?(NewLine) && !@inlines_impl.first.pre_blank?)
+      if @inlines_impl.empty?
+        yield make_error_message("inlines is empty.")
+      else 
+        yield make_error_message("invalid new-line charactor.") if @inlines_impl.last.is_a?(NewLine) || (@inlines_impl.first.is_a?(NewLine) && !@inlines_impl.first.pre_blank?)
+        before = nil
+        Node.each_tree(*inlines) do |n|
+          yield make_error_message("invalid pre_blank inline node after new-line node.") if before.is_a?(NewLine) && n.pre_blank?
+          before = n
+        end
+      end
     end
 
     private

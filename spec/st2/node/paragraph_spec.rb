@@ -111,6 +111,7 @@ describe "KtouthBrand::ST2::Paragraph" do
     it { make_and_check(KtouthBrand::ST2::Text.new('test'), KtouthBrand::ST2::NewLine.new).valid?.should be_false }
     it { make_and_check(KtouthBrand::ST2::NewLine.new, KtouthBrand::ST2::Text.new('test')).valid?.should be_false }
     it { make_and_check(KtouthBrand::ST2::NewLine.new.tap {|x| x.pre_blank = true }, KtouthBrand::ST2::Text.new('test')).valid?.should be_true }
+    it { make_and_check(KtouthBrand::ST2::Text.new('first-line'), KtouthBrand::ST2::NewLine.new, KtouthBrand::ST2::Text.new('test', :pre_blank => true), KtouthBrand::ST2::Text.new('second-line')).valid?.should be_false }
   end
 
   describe '#format_for_source' do
