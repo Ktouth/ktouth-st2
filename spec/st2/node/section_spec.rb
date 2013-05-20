@@ -4,7 +4,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../../node_specset')
 describe "KtouthBrand::ST2::Section" do
   before :all do
     @node_type = KtouthBrand::ST2::Section
-    @valid_node = @node_type.new
+    @valid_title_texts = [KtouthBrand::ST2::Text.new('title'), KtouthBrand::ST2::Text.new('valid', :pre_blank => true), KtouthBrand::ST2::Text.new('ok!!', :pre_blank => true), KtouthBrand::ST2::Text.new('prease.', :pre_blank => true), ]
     @valid_children = [
       KtouthBrand::ST2::Paragraph.new.add_inline(
         KtouthBrand::ST2::Text.new('test'), KtouthBrand::ST2::NewLine.new, KtouthBrand::ST2::Text.new('valid'), KtouthBrand::ST2::Text.new('ok!!', :pre_blank => true)
@@ -17,7 +17,7 @@ describe "KtouthBrand::ST2::Section" do
         KtouthBrand::ST2::Text.new('find'), KtouthBrand::ST2::Text.new('valid!!', :pre_blank => true)
       ),
     ]
-    @valid_title_texts = [KtouthBrand::ST2::Text.new('title'), KtouthBrand::ST2::Text.new('valid', :pre_blank => true), KtouthBrand::ST2::Text.new('ok!!', :pre_blank => true), KtouthBrand::ST2::Text.new('prease.', :pre_blank => true), ]
+    @valid_node = @node_type.new.add_title_text(*@valid_title_texts).add_block(*@valid_children)
   end
   include_context "node class specset"
 
@@ -163,5 +163,20 @@ describe "KtouthBrand::ST2::Section" do
     it { subject.remove_title_text(@valid_title_texts.first).should == subject }
     it { expect { subject.remove_title_text(@valid_title_texts[2]) }.to change { subject.title_texts.size }.from(@valid_title_texts.size).by(-1) }
     it { expect { subject.remove_title_text(@valid_title_texts[1]) }.to change { subject.title_texts.to_a }.from(@valid_title_texts).to([@valid_title_texts.first] + @valid_title_texts[2..-1]) }
+  end
+
+  describe '#each_node' do
+    subject { @valid_node }
+    it { should be_respond_to(:each_node) }
+    it { subject.each_node.should be_a(Enumerator) }
+    it { subject.each_node.to_a.should == (subject.title_texts.to_a + subject.blocks.to_a) }
+    
+    context 'is received block' do
+      before do
+        @result = []
+        subject.each_node {|x| @result << x }
+      end
+      it { @result.should == (subject.title_texts.to_a + subject.blocks.to_a) }
+    end
   end
 end
