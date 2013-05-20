@@ -15,4 +15,5 @@ require 'readonly_collection'
 [
   :text, :newline,
   :paragraph, :separator,
+  :section,
 ].each {|x| require "st2/node/#{x}" }
