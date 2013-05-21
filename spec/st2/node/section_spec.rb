@@ -179,4 +179,23 @@ describe "KtouthBrand::ST2::Section" do
       it { @result.should == (subject.title_texts.to_a + subject.blocks.to_a) }
     end
   end
+  
+  describe '#each_error_message' do
+    def make_and_check(*args, &block)
+      node = @node_type.new
+      node.add_block(*args) unless args.empty?
+      node.add_title_text(*block.call) if block
+      KtouthBrand::ST2::NodeValidator.new.tap {|t| t.validate(node) }
+    end
+
+    it { make_and_check(@valid_children[0]).valid?.should be_true }
+    it { make_and_check().valid?.should be_false }
+    it { make_and_check(*@valid_children[0..1]).valid?.should be_false }
+    it { make_and_check(*@valid_children[1..3]).valid?.should be_false }
+    it { make_and_check(@valid_children[0]) { @valid_title_texts }.valid?.should be_true }
+    it { make_and_check() { @valid_title_texts }.valid?.should be_false }
+    it { make_and_check(*@valid_children[0..1]) { @valid_title_texts }.valid?.should be_false }
+    it { make_and_check(*@valid_children[1..3]) { @valid_title_texts }.valid?.should be_false }
+    it { make_and_check(@valid_children[1]).size.should == 1 }
+  end
 end

@@ -44,6 +44,12 @@ module KtouthBrand::ST2
 
     def each_error_message
       return self.to_enum(:each_error_message) unless block_given?
+      if blocks.empty?
+        yield make_error_message("blocks is empty.")
+      else
+        yield make_error_message("invalid first separator block.") if blocks[0].is_a?(Separator)
+        yield make_error_message("invalid last separator block.") if (blocks.size > 1) && blocks[-1].is_a?(Separator)
+      end 
     end
 
     private
