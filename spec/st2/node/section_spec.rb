@@ -18,6 +18,7 @@ describe "KtouthBrand::ST2::Section" do
       ),
     ]
     @valid_node = @node_type.new.add_title_text(*@valid_title_texts).add_block(*@valid_children)
+    @valid_node_source = "=== title valid ok!! prease.\n\ntest\nvalid ok!!\n\n---\n\n simple-text.\n\nfind valid!!\n"
   end
   include_context "node class specset"
 
@@ -197,5 +198,51 @@ describe "KtouthBrand::ST2::Section" do
     it { make_and_check(*@valid_children[0..1]) { @valid_title_texts }.valid?.should be_false }
     it { make_and_check(*@valid_children[1..3]) { @valid_title_texts }.valid?.should be_false }
     it { make_and_check(@valid_children[1]).size.should == 1 }
+  end
+
+  describe '#format_for_source' do
+    def make_and_format(*args, &block)
+      node = @node_type.new
+      node.add_block(*args) unless args.empty?
+      node.add_title_text(*block.call) if block
+      KtouthBrand::ST2::SourceFormatter.new.tap {|x| x.format(node) }.string
+    end
+
+    it { KtouthBrand::ST2::SourceFormatter.new.tap {|x| x.format(@valid_node) }.string.should == @valid_node_source }
+    it { make_and_format().should == "" }
+    it { make_and_format(@valid_children[2]).should == " simple-text.\n" }
+    it { make_and_format(*@valid_children).should == @valid_node_source.sub(/\A.*\n\n/, '') }
+
+    context 'is write section-separator when before-node is Section.' do
+      def make_and_format(*args, &block)
+        node = @node_type.new
+        node.add_block(*args) unless args.empty?
+        node.add_title_text(*block.call) if block
+        KtouthBrand::ST2::SourceFormatter.new.tap {|x| x.format(node) }.string
+        
+        before = KtouthBrand::ST2::Section.new.add_block(
+          KtouthBrand::ST2::Paragraph.new.add_inline( KtouthBrand::ST2::Text.new('before-section.') )
+        )
+
+        dummy_group = Class.new(KtouthBrand::ST2::Node).send(:new)
+        k = class <<dummy_group
+          def format_for_source(context); end
+          self
+        end
+        k.send(:define_method, :each_node) do |&b|
+          [before, node].each(&b)
+        end
+
+        formatter = KtouthBrand::ST2::SourceFormatter.new
+        formatter.format(dummy_group)
+        formatter.string
+      end
+      before :all do
+        @before_source = "before-section.\n"
+        @source_without_title = @valid_node_source.sub(/\A.*\n\n/, '')
+      end
+      it { make_and_format(*@valid_children) { @valid_title_texts }.should == "#{@before_source}\n------\n#{@valid_node_source}" }
+      it { make_and_format(*@valid_children).should == "#{@before_source}\n------\n\n#{@source_without_title}" }
+    end
   end
 end

@@ -55,6 +55,17 @@ module KtouthBrand::ST2
     private
 
     def format_for_source(context)
+      if context.before.is_a?(Section)
+        context.write("\n------\n")
+        context.write("\n") if title_texts.empty?
+      end
+      unless title_texts.empty?
+        context.write '=== '
+        sep = context.make_dummy_node(:source) do |c|
+          c.write "\n\n"
+        end
+        context.child_nodes = [title_texts.to_a, sep, blocks.to_a].flatten
+      end
     end
   end
 end
