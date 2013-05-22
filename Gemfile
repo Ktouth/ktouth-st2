@@ -5,15 +5,15 @@ source "http://rubygems.org"
 
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
-gem "racc", "> 1.4"
+gem "racc", ">= 1.4.9"
 
 group :development do
-  gem "rspec", "~> 2.12.0"
+  gem "rspec", "~> 2.13.0"
   gem "yard", "~> 0.8"
-  gem "bundler", "~> 1.2.3"
+  gem "bundler", "~> 1.3.5"
   gem "jeweler", "~> 1.8.4"
   gem "simplecov", "~> 0.7"
-  gem "guard", "~> 1.6.1", :require => false
-  gem "guard-rspec", "~> 2.3.3", :require => false
-  gem "wdm", "~> 0.0.3", :require => false
+  gem "guard", "~> 1.8.0", :require => false
+  gem "guard-rspec", "~> 3.0.0", :require => false
+  gem "wdm", "~> 0.1.0", :require => false
 end
