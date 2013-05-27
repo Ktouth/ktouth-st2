@@ -110,4 +110,40 @@ describe "KtouthBrand::ST2::PieceReader" do
       it { get_scanner(subject.read(@obj)).string.should == @string }
     end
   end
+
+  describe "#each" do
+    before do
+      @reader = KtouthBrand::ST2::PieceReader.parse("test string")
+    end
+    def make_array
+      [].tap do |t|
+        subject.each {|x| t.push x }
+      end
+    end
+    def compare(a, b)
+      [:token, :lineno, :column, :value].all? {|s| a.send(s) == b.send(s) }
+    end
+    
+    subject { @reader }
+    it { should be_respond_to(:each) }
+
+    it { expect { subject.each {|x| } }.to_not raise_error }
+    it { subject.each.should be_a(Enumerator) }
+    it { make_array.zip(subject.each.to_a).should be_all {|a, b| compare(a, b) } }
+
+    context 'result array check' do
+      subject { @reader.each.to_a }
+      def compare(i, *args)
+        [:token, :lineno, :column, :value].map {|s| subject[i].send(s) } == args
+      end
+
+      it { should_not be_empty }
+      it { should be_all {|x| x.is_a?(KtouthBrand::ST2::Piece) } }
+      it { compare(0, :BoParagraph, 1, 1, nil).should be_true }
+      it { compare(1, :Text, 1, 1, "test").should be_true }
+      it { compare(2, :Blank, 1, 5, nil).should be_true }
+      it { compare(3, :Text, 1, 6, "string").should be_true }
+      it { compare(4, :EoBlock, 2, 0, nil).should be_true }
+    end
+  end
 end

@@ -40,7 +40,21 @@ module KtouthBrand::ST2
     end
 
     def each
-      raise NotImplemented
+      return to_enum(:each) unless block_given?
+      @lineno, @column = 0, 0
+
+      # dummy code
+      @lineno, @column = 1, 1; yield token(:BoParagraph)
+      @lineno, @column = 1, 1; yield token(:Text, "test")
+      @lineno, @column = 1, 5; yield token(:Blank)
+      @lineno, @column = 1, 6; yield token(:Text, "string")
+      @lineno, @column = 2, 0; yield token(:EoBlock)
+    end
+
+    private
+
+    def token(sym, value = nil)
+      Piece.send(:new, sym, @lineno, @column, value)
     end
   end
 end
