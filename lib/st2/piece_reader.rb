@@ -39,22 +39,106 @@ module KtouthBrand::ST2
       @scanner = scanner
     end
 
-    def each
-      return to_enum(:each) unless block_given?
-      @lineno, @column = 0, 0
-
-      # dummy code
-      @lineno, @column = 1, 1; yield token(:BoParagraph)
-      @lineno, @column = 1, 1; yield token(:Text, "test")
-      @lineno, @column = 1, 5; yield token(:Blank)
-      @lineno, @column = 1, 6; yield token(:Text, "string")
-      @lineno, @column = 2, 0; yield token(:EoBlock)
+    def each(&block)
+      return to_enum(:each) unless block
+      __debug__ "\n************************ scan start!! *************************"
+      __debug__ "text: %s" % @scanner.string.inspect
+      unless @scanner.eos?
+        @lineno, @column, @col_stack = 1, 0, []
+        while !@scanner.eos?
+          __debug__ "*line: #{@lineno}"
+          each_continue_of_line(&block)
+          each_block(&block)
+          each_inline(&block)
+          if scan(/\n/)
+            @column = 1 if @column == 0
+            block[ token :EOL ]
+            @lineno, @column = @lineno + 1, 0
+          end
+        end
+        unless bol?
+          @lineno, @column = @lineno + 1, 0
+          __debug__ "*line: #{@lineno}"
+          @col_stack.each { block[ token :EoBlock ] }
+        end
+      end
+      __debug__ "\n************************ scan end!! ***************************"
     end
 
     private
 
     def token(sym, value = nil)
-      Piece.send(:new, sym, @lineno, @column, value)
+      __debug__ '  [%3d] %s %s' % [@column, sym.inspect, value.nil? ? '' : value.inspect]
+
+      Piece.send(:new, sym, @lineno, @column, value).tap do |t|
+        @column += value.size if value.is_a?(String)
+      end
+    end
+
+    def eol?; @scanner.check(/$/) end
+    def bol?; @scanner.bol? end
+    def scan(re); @scanner.scan(re) end
+
+    def each_continue_of_line
+      if (c = @col_stack.size) > 0
+        __debug__ "=== into: continue_of_line"
+
+        @col_stack.each do |re|
+          if m = scan(re)
+            @column = 1 if @column == 0
+            @column += m.size
+            c -= 1
+          else
+            break
+          end
+        end
+        c.times do
+          yield token :EoBlock
+          @col_stack.pop
+        end
+      end
+      @column = 1 if !eol? && (@column == 0) 
+    end
+    ContinueOfParagraph = /(?=\S)/
+    def each_block
+      __debug__ "=== into: block"
+      while !eol?
+        if scan(/---/)
+          yield token :Separator
+          @column += 3
+          break
+        elsif scan(/(?= )/)
+          yield token :Paragraph
+          @col_stack.push(ContinueOfParagraph)
+          break
+        else
+          if @col_stack.last != ContinueOfParagraph
+            yield token :Paragraph
+            @col_stack.push(ContinueOfParagraph)
+          end
+          break
+        end
+      end
+    end
+    def each_inline
+      __debug__ "=== into: inline"
+      while !eol?
+        if scan(/\\(.)/)
+          yield token :Text, @scanner[1]
+          @column += 1
+        elsif scan(/[ \t]/)
+          yield token :Blank
+          @column += 1
+        elsif w = scan(/[^\s\\]+/)
+          yield token :Text, w
+        else
+          yield token :InvalidChar
+          __debug__ "#{scan(/./).inspect}"
+        end
+      end
+    end
+    def __debug__(*args)
+#      puts(*args)
     end
   end
 end

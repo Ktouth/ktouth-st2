@@ -116,8 +116,9 @@ describe "KtouthBrand::ST2::PieceReader" do
       @reader = KtouthBrand::ST2::PieceReader.parse("test string")
     end
     def make_array
-      [].tap do |t|
-        subject.each {|x| t.push x }
+      [].tap do |ret|
+        reader = KtouthBrand::ST2::PieceReader.parse("test string")
+        reader.each {|x| ret.push(x) }
       end
     end
     def compare(a, b)
@@ -139,7 +140,7 @@ describe "KtouthBrand::ST2::PieceReader" do
 
       it { should_not be_empty }
       it { should be_all {|x| x.is_a?(KtouthBrand::ST2::Piece) } }
-      it { compare(0, :BoParagraph, 1, 1, nil).should be_true }
+      it { compare(0, :Paragraph, 1, 1, nil).should be_true }
       it { compare(1, :Text, 1, 1, "test").should be_true }
       it { compare(2, :Blank, 1, 5, nil).should be_true }
       it { compare(3, :Text, 1, 6, "string").should be_true }
