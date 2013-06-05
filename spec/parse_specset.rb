@@ -9,6 +9,12 @@ shared_context 'parse example set' do
       piece.should be_valid_piece(index, example)
     end
   end
+
+  it "error check" do
+    if @errors.is_a?(Array)
+      # TODO
+    end
+  end
 end
 
 RSpec::Matchers.define :be_valid_piece do |index, other|

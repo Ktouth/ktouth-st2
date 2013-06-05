@@ -131,11 +131,11 @@ module KtouthBrand::ST2
         elsif scan(/[ \t]/)
           yield token :Blank
           @column += 1
-        elsif w = scan(/[^\s\\]+/)
+        elsif w = scan(/[^\s\\\x00-\x08\x0b\x0c\x0e-\x1f]+/)
           yield token :Text, w
-        else
-          yield token :InvalidChar
-          __debug__ "#{scan(/./).inspect}"
+        else w = @scanner.getch
+          yield token :InvalidChar, w
+          __debug__ "invalid char: #{w.inspect}"
         end
       end
     end
