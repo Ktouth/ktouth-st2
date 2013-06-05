@@ -13,16 +13,15 @@ end
 
 RSpec::Matchers.define :be_valid_piece do |index, other|
   match do |player|
+    raise ArgumentError, 'other is invalid array' unless other.is_a?(Array) && (other.size == 4)
     if player.is_a?(KtouthBrand::ST2::Piece)
       ary = [:token, :lineno, :column, :value].map {|x| player.send(x) }
       ary.zip(other).all? {|a, b| a == b }
-    else
-      player == other
     end
   end
 
   failure_message_for_should do |player|
     ary = player.is_a?(KtouthBrand::ST2::Piece) ? [:token, :lineno, :column, :value].map {|x| player.send(x) } : player
-    "\nexpected: [#{index}]#{other.inspect}\n     got: [#{index}]#{ary.inspect}\n\n(compared using eql?)\n"
+    "\nexpected: [#{index}]#{other.inspect}\n     got: [#{index}]#{ary.inspect}\n"
   end
 end
