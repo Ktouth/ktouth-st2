@@ -84,18 +84,19 @@ module KtouthBrand::ST2
         __debug__ "=== into: continue_of_line"
 
         @col_stack.each do |re|
-          if m = scan(re)
+          break unless m = scan(re)
+#          if m = scan(re)
             @column = 1 if @column == 0
             @column += m.size
             c -= 1
-          else
-            break
-          end
+#          else
+#            break
+#          end
         end
-        c.times do
-          yield token :EoBlock
-          @col_stack.pop
-        end
+#        c.times do
+#          yield token :EoBlock
+#          @col_stack.pop
+#        end
       end
       @column = 1 if !eol? && (@column == 0) 
     end
@@ -103,11 +104,12 @@ module KtouthBrand::ST2
     def each_block
       __debug__ "=== into: block"
       while !eol?
-        if scan(/---/)
-          yield token :Separator
-          @column += 3
-          break
-        elsif scan(/(?= )/)
+#        if scan(/---/)
+#          yield token :Separator
+#          @column += 3
+#          break
+#        elsif scan(/(?= )/)
+        if scan(/(?= )/)
           yield token :Paragraph
           @col_stack.push(ContinueOfParagraph)
           break
